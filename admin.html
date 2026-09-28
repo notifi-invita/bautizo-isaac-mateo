@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confirmaciones · Bautizo de Isaac Mateo</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  body{padding:28px 16px 60px}
+  .admin{position:relative;z-index:2;max-width:1080px;margin:0 auto}
+  .box{padding:28px clamp(16px,4vw,34px);background:var(--card);border:1px solid rgba(195,154,92,.3);border-radius:4px;box-shadow:var(--shadow)}
+  .admin h1{font-family:var(--script);font-weight:400;font-size:clamp(2.6rem,9vw,3.2rem);line-height:1.2;text-align:center;color:var(--gold-3)}
+  .sub{margin-bottom:20px;text-align:center;color:var(--ink-soft)}
+  #login{max-width:420px;margin:10vh auto 0}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:18px 0 22px}
+  .stat{padding:16px;text-align:center;background:#fff;border:1px solid var(--line);border-radius:10px}
+  .stat b{display:block;font:600 2.2rem var(--serif);color:var(--gold-4);font-variant-numeric:tabular-nums}
+  .stat span{font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+  .stat.main{background:linear-gradient(180deg,#fffaf0,#f7ead0);border-color:var(--gold-2)}
+  .bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}
+  .bar input,.bar select{flex:1 1 200px;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font:1rem var(--sans);color:var(--ink)}
+  .bar select{flex:0 1 200px}
+  .bar .btn{padding:11px 18px;font-size:.74rem}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+  table{width:100%;min-width:760px;border-collapse:collapse;background:#fff}
+  th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid #efe7d8;font-size:.95rem}
+  th{background:#f7f1e4;font-weight:400;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+  td.num{text-align:center;font-variant-numeric:tabular-nums}
+  td.msg{max-width:320px;font-family:var(--serif);font-style:italic;color:var(--ink-soft)}
+  .tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.78rem}
+  .tag.yes{background:#e3ede5;color:#3f6a4b}
+  .tag.no{background:#f6e6de;color:#9a5a3e}
+  .del{border:0;background:none;color:#a0674a;font-size:.85rem;text-decoration:underline;cursor:pointer}
+  .empty{padding:28px;text-align:center;color:var(--ink-soft)}
+  tr.row{animation:fadeUp .5s both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="paper" aria-hidden="true"></div>
+
+<div class="admin">
+  <div id="login" class="box">
+    <h1>Panel privado</h1>
+    <p class="sub">Solo para Andrés y Cristina</p>
+    <form id="loginForm" novalidate>
+      <div class="field"><input type="email" id="email" placeholder=" " autocomplete="username" required><label for="email">Correo</label></div>
+      <div class="field"><input type="password" id="pass" placeholder=" " autocomplete="current-password" required><label for="pass">Contraseña</label></div>
+      <p class="form-error" id="loginErr" role="alert"></p>
+      <button class="btn btn-gold big" id="loginBtn" type="submit">Entrar</button>
+    </form>
+  </div>
+
+  <div id="dash" class="box" hidden>
+    <h1>Confirmaciones</h1>
+    <p class="sub">Bautizo de Isaac Mateo · se actualiza solo cada minuto</p>
+    <div class="stats">
+      <div class="stat main"><b id="sPeople">0</b><span>Personas en total</span></div>
+      <div class="stat"><b id="sYes">0</b><span>Confirmaron</span></div>
+      <div class="stat"><b id="sGuests">0</b><span>Acompañantes</span></div>
+      <div class="stat"><b id="sNo">0</b><span>No asistirán</span></div>
+    </div>
+    <div class="bar">
+      <input type="search" id="q" placeholder="Buscar por nombre o apellido" aria-label="Buscar">
+      <select id="filter" aria-label="Filtrar respuestas">
+        <option value="all">Todas las respuestas</option>
+        <option value="yes">Solo quienes asistirán</option>
+        <option value="no">Solo quienes no asistirán</option>
+        <option value="msg">Solo con mensaje</option>
+      </select>
+      <button class="btn btn-line" id="refresh" type="button">Actualizar</button>
+      <button class="btn btn-line" id="csv" type="button">Descargar Excel (CSV)</button>
+      <button class="btn btn-line" id="logout" type="button">Salir</button>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Nombre</th><th>Apellido</th><th>Asiste</th><th>Acomp.</th><th>Personas</th><th>Mensaje</th><th>Fecha</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="vendor/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

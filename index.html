@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bautizo de Isaac Mateo</title>
+<meta name="description" content="Te invito a mi Bautizo el sábado 17 de octubre en la Iglesia de San Blas, Cuenca. Confirma tu asistencia aquí.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Bautizo de Isaac Mateo">
+<meta property="og:description" content="Sábado 17 de octubre · Iglesia de San Blas, Cuenca. Toca para abrir tu invitación.">
+<meta property="og:url" content="https://notifi-invita.github.io/bautizo-isaac-mateo/">
+<meta property="og:image" content="https://notifi-invita.github.io/bautizo-isaac-mateo/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#f1ebdf">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preload" href="fonts/pinyon-script.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="img/corner-a-front.webp" as="image">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/styles.css">
+<noscript><style>#intro{display:none}body.is-locked{overflow:auto;height:auto}</style></noscript>
+</head>
+<body class="is-locked">
+<!--PREVIEW-START-->
+
+<!-- ================= SOBRE DE ENTRADA ================= -->
+<div id="intro" class="intro">
+  <div class="intro-glow" aria-hidden="true"></div>
+  <p class="intro-to" id="introTo">Una invitación especial para ti</p>
+  <div class="env-stage">
+    <div class="envelope" id="envelope">
+      <div class="env-back"></div>
+      <div class="env-letter" id="envLetter">
+        <div class="env-letter-inner">
+          <div class="env-sprig" data-art="sprig"></div>
+          <div class="env-title" data-art="title" data-key="bautizo"></div>
+          <p class="env-name" data-fill="baby">Isaac Mateo</p>
+        </div>
+      </div>
+      <div class="env-front"></div>
+      <div class="env-flap" id="envFlap"><div class="flap-face outside"></div><div class="flap-face inside"></div></div>
+      <button class="seal" id="openBtn" type="button" aria-label="Abrir la invitación">
+        <span class="seal-face"><span class="seal-initials" data-fill="initials">IM</span></span>
+      </button>
+      <div class="seal-shards" id="sealShards" aria-hidden="true"></div>
+    </div>
+  </div>
+  <p class="intro-hint"><span class="hint-dot" aria-hidden="true"></span>Toca el sello para abrir<span id="musicHint"> · con música</span></p>
+</div>
+
+<!-- ================= CAPAS DE FONDO ================= -->
+<div class="paper" aria-hidden="true"></div>
+<canvas id="dust" aria-hidden="true"></canvas>
+<div id="leaves" aria-hidden="true"></div>
+<div class="scroll-dove" id="scrollDove" aria-hidden="true"><div data-art="dove"></div></div>
+<div id="flyLayer" aria-hidden="true"></div>
+<canvas id="petals" aria-hidden="true"></canvas>
+
+<button id="musicBtn" class="music-btn" type="button" aria-label="Pausar o reanudar la música">
+  <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+</button>
+
+<main id="main">
+  <!-- ================= TARJETA PRINCIPAL ================= -->
+  <section class="hero" id="inicio">
+    <article class="invite" id="invite">
+      <div class="floral tl" aria-hidden="true">
+        <img class="lay back" src="img/corner-a-back.webp" alt="" width="640" height="640">
+        <img class="lay mid" src="img/corner-a-mid.webp" alt="" width="640" height="640">
+        <img class="lay front" src="img/corner-a-front.webp" alt="" width="640" height="640">
+      </div>
+      <div class="floral br" aria-hidden="true">
+        <img class="lay back" src="img/corner-b-back.webp" alt="" width="640" height="640">
+        <img class="lay mid" src="img/corner-b-mid.webp" alt="" width="640" height="640">
+        <img class="lay front" src="img/corner-b-front.webp" alt="" width="640" height="640">
+      </div>
+      <div class="frame tr" data-art="frame"></div>
+      <div class="frame bl" data-art="frame"></div>
+      <div class="splat sp1" data-art="splat" data-seed="21"></div>
+      <div class="splat sp2" data-art="splat" data-seed="34"></div>
+      <div class="sparkles" data-art="sparkles"></div>
+
+      <div class="portrait" id="portrait">
+        <div class="rays" aria-hidden="true"></div>
+        <div class="wreath" data-art="wreath"></div>
+        <div class="dove perch left"><div class="dove-in" data-art="dove"></div></div>
+        <div class="dove perch right"><div class="dove-in" data-art="dove"></div></div>
+        <div class="photo-ring" id="photoRing"><div class="photo" id="mainPhoto"><span class="monogram" data-fill="initials">IM</span></div></div>
+        <div class="bear" data-art="bear"></div>
+      </div>
+
+      <h1 class="title">
+        <span class="sr-only">Bautizo de Isaac Mateo</span>
+        <span class="title-art" data-art="title" data-key="bautizo"></span>
+      </h1>
+      <div class="ribbon" id="ribbon" aria-hidden="true">
+        <div class="ribbon-art" data-art="ribbon"></div>
+        <span class="ribbon-name"><span class="rn-text" data-fill="baby">Isaac Mateo</span></span>
+      </div>
+
+      <p class="invite-text" data-fill="invite"></p>
+
+      <div class="date-row" id="dateRow" aria-hidden="true">
+        <div class="date-side left"><i></i><span id="weekday">sábado</span><i></i></div>
+        <div class="date-seal">
+          <svg class="month-arc" viewBox="0 0 220 110"><path id="arcPath" d="M37.9 59.5A88 88 0 0 1 182.1 59.5" fill="none"/><text><textPath href="#arcPath" startOffset="50%" text-anchor="middle" id="monthArc">OCTUBRE</textPath></text></svg>
+          <div class="coin" id="coin"><span id="dayNum">17</span></div>
+        </div>
+        <div class="date-side right"><i></i><span id="timeTxt">10:00 A.M.</span><i></i></div>
+      </div>
+      <p class="sr-only" id="dateSr"></p>
+
+      <div class="family" id="family">
+        <div><p class="fam-label">Mis padres</p><p class="fam-names" data-list="parents">Andrés<br>Cristina</p></div>
+        <div class="cross" data-art="cross"></div>
+        <div><p class="fam-label">Mis padrinos</p><p class="fam-names" data-list="godparents">María José<br>Julio</p></div>
+      </div>
+
+      <a href="#confirmar" class="btn btn-gold shine hero-cta" id="heroCta" data-goto>Confirmar asistencia</a>
+    </article>
+    <div class="scroll-cue" aria-hidden="true"><span></span></div>
+  </section>
+
+  <!-- ================= MENSAJE ================= -->
+  <section class="section" id="mensaje">
+    <img class="wash" src="img/wash-3.webp" alt="" aria-hidden="true" loading="lazy">
+    <div class="wrap">
+      <div class="sprig" data-art="sprig"></div>
+      <p class="verse" data-fill="verse"></p>
+      <p class="verse-ref" data-fill="verseRef"></p>
+      <p class="lead" data-fill="gratitude"></p>
+    </div>
+  </section>
+
+  <!-- ================= CUENTA REGRESIVA ================= -->
+  <section class="section" id="cuenta">
+    <img class="wash" src="img/wash-8.webp" alt="" aria-hidden="true" loading="lazy">
+    <div class="wrap">
+      <h2 class="sec-title">Falta muy poco</h2>
+      <div class="flipclock" id="flipclock" role="timer" aria-live="off">
+        <div class="unit"><div class="flip" data-u="d"></div><small>días</small></div>
+        <div class="unit"><div class="flip" data-u="h"></div><small>horas</small></div>
+        <div class="unit"><div class="flip" data-u="m"></div><small>minutos</small></div>
+        <div class="unit"><div class="flip" data-u="s"></div><small>segundos</small></div>
+      </div>
+      <p class="date-long" id="dateLong"></p>
+    </div>
+  </section>
+
+  <!-- ================= DÓNDE Y CUÁNDO ================= -->
+  <section class="section" id="detalles">
+    <img class="wash" src="img/wash-15.webp" alt="" aria-hidden="true" loading="lazy">
+    <div class="wrap wide">
+      <h2 class="sec-title">Dónde y cuándo</h2>
+      <div class="events">
+        <article class="event">
+          <div class="event-icon" data-art="church"></div>
+          <h3>Ceremonia</h3>
+          <p class="time" id="cTime"></p>
+          <p class="place" id="cPlace"></p>
+          <p class="city" id="cCity"></p>
+          <a class="btn btn-line" id="cMap" target="_blank" rel="noopener">Ver ubicación</a>
+        </article>
+        <article class="event">
+          <div class="event-icon" data-art="toast"></div>
+          <h3>Recepción</h3>
+          <p class="time" id="rTime"></p>
+          <p class="place" id="rPlace"></p>
+          <p class="city" id="rCity"></p>
+          <a class="btn btn-line" id="rMap" target="_blank" rel="noopener">Ver ubicación</a>
+        </article>
+      </div>
+      <div class="cal">
+        <a class="btn btn-gold shine" id="calBtn" target="_blank" rel="noopener">Agendar en mi calendario</a>
+        <button class="link-btn" id="icsBtn" type="button">¿Usas iPhone? Descarga el evento (.ics)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GALERÍA ================= -->
+  <section class="section" id="galeria" hidden>
+    <div class="wrap wide">
+      <h2 class="sec-title">Nuestro pequeño milagro</h2>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </section>
+
+  <!-- ================= CONFIRMACIÓN ================= -->
+  <section class="section" id="confirmar">
+    <div class="wrap">
+      <div class="rsvp" id="rsvpCard">
+        <div class="sprig" data-art="sprig"></div>
+        <h2 class="sec-title">Confirma tu asistencia</h2>
+        <p class="deadline" id="deadlineTxt"></p>
+
+        <form id="rsvpForm" novalidate>
+          <div class="choice" role="radiogroup" aria-label="¿Nos acompañarás?">
+            <label class="chip"><input type="radio" name="att" value="yes" checked><span><b>Con gusto asistiré</b><small>¡Ahí estaré!</small></span></label>
+            <label class="chip"><input type="radio" name="att" value="no"><span><b>No podré asistir</b><small>Enviaré mis buenos deseos</small></span></label>
+          </div>
+          <div class="row2">
+            <div class="field"><input id="fName" type="text" placeholder=" " autocomplete="given-name" maxlength="60" required><label for="fName">Nombre</label></div>
+            <div class="field"><input id="fLast" type="text" placeholder=" " autocomplete="family-name" maxlength="60" required><label for="fLast">Apellido</label></div>
+          </div>
+          <div class="collapse" id="yesBox"><div>
+            <div class="guests">
+              <span class="guests-label">¿Cuántos acompañantes vienen contigo?</span>
+              <div class="stepper">
+                <button type="button" id="gMinus" aria-label="Quitar un acompañante">−</button>
+                <output id="gNum" aria-live="polite">0</output>
+                <button type="button" id="gPlus" aria-label="Agregar un acompañante">+</button>
+              </div>
+              <small id="gHint">Solo tú</small>
+            </div>
+          </div></div>
+          <div class="collapse closed" id="noBox"><div>
+            <p class="suggest-label">Elige una frase o escribe la tuya:</p>
+            <div class="suggest" id="suggest"></div>
+          </div></div>
+          <div class="field"><textarea id="fMsg" placeholder=" " maxlength="500" rows="3"></textarea><label for="fMsg" id="msgLabel">Un mensaje para Isaac Mateo (opcional)</label></div>
+          <p class="form-error" id="formError" role="alert"></p>
+          <button type="submit" class="btn btn-gold shine big" id="sendBtn">Enviar confirmación</button>
+        </form>
+
+        <div class="thanks" id="thanks" hidden>
+          <div class="thanks-script" data-art="title" data-key="thanks"></div>
+          <h3 id="thanksTitle"></h3>
+          <p id="thanksText"></p>
+          <blockquote id="thanksQuote" hidden></blockquote>
+        </div>
+        <div class="thanks" id="closed" hidden>
+          <h3>Las confirmaciones cerraron</h3>
+          <p>La fecha para confirmar ya pasó. Si deseas acompañarnos, escríbele directamente a Andrés o a Cristina.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="sprig" data-art="sprig"></div>
+    <p class="foot-closing" data-fill="closing">Con amor y gratitud,</p>
+    <p class="foot-names" id="footNames">Andrés y Cristina</p>
+    <p class="foot-small">Gracias por ser parte de este momento tan especial.</p>
+  </footer>
+</main>
+
+<div id="lightbox" hidden><img alt=""><button type="button" aria-label="Cerrar">✕</button></div>
+<audio id="bgm" loop preload="auto"></audio>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<!--PREVIEW-END-->
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/MotionPathPlugin.min.js"></script>
+<script src="vendor/DrawSVGPlugin.min.js"></script>
+<script src="vendor/SplitText.min.js"></script>
+<script src="vendor/CustomEase.min.js"></script>
+<script src="vendor/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/title-paths.js"></script>
+<script src="js/art.js"></script>
+<script src="js/app.js"></script>
+<script src="js/motion.js"></script>
+<script src="js/rsvp.js"></script>
+</body>
+</html>
