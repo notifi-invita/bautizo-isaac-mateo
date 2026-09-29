@@ -204,6 +204,7 @@
         <p class="deadline" id="deadlineTxt"></p>
 
         <form id="rsvpForm" novalidate>
+          <div class="step" id="step1">
           <p class="choice-q">¿Nos acompañarás?</p>
           <div class="choice" role="radiogroup" aria-label="¿Nos acompañarás?">
             <label class="chip"><input type="radio" name="att" value="yes"><span><b>Con gusto asistiré</b><small>¡Ahí estaré!</small></span></label>
@@ -224,12 +225,6 @@
               </div>
               <small id="gHint">Solo tú</small>
             </div>
-            <fieldset class="meals" id="meals">
-              <legend class="meals-q" id="mealsQ"></legend>
-              <p class="meals-hint" id="mealsHint"></p>
-              <div class="meal-rows" id="mealRows"></div>
-              <p class="meals-sum" id="mealsSum" aria-live="polite"></p>
-            </fieldset>
           </div></div>
           <div class="collapse closed" id="noBox"><div>
             <p class="suggest-label">Elige una frase o escribe la tuya:</p>
@@ -237,8 +232,21 @@
           </div></div>
           <div class="field"><textarea id="fMsg" placeholder=" " maxlength="500" rows="3"></textarea><label for="fMsg" id="msgLabel">Un mensaje para Isaac Mateo (opcional)</label></div>
           <div class="hp" aria-hidden="true"><label for="fTrap">Deja este campo vacío</label><input id="fTrap" name="bz_trap_7" type="text" tabindex="-1" autocomplete="off" data-1p-ignore data-lpignore="true"></div>
+          </div>
+          <!-- Paso 2 (solo si asistirá): el menú, una elección por persona -->
+          <div class="step" id="step2" hidden>
+            <p class="step-kicker">Paso 2 de 2 · Menú</p>
+            <h3 class="step-title" id="step2Title" tabindex="-1">¡Qué alegría!</h3>
+            <fieldset class="meals" id="meals">
+              <legend class="meals-q" id="mealsQ"></legend>
+              <p class="meals-hint" id="mealsHint"></p>
+              <div class="meal-rows" id="mealRows"></div>
+              <p class="meals-sum" id="mealsSum" aria-live="polite"></p>
+            </fieldset>
+          </div>
           <p class="form-error" id="formError" role="alert"></p>
           <button type="submit" class="btn btn-gold shine big" id="sendBtn">Enviar confirmación</button>
+          <button type="button" class="link-btn back-btn" id="backBtn" hidden>← Volver a mis datos</button>
         </form>
 
         <div class="thanks" id="thanks" hidden>

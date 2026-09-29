@@ -123,6 +123,34 @@
   $("#gPlus").addEventListener("click", () => setGuests(guests + 1));
   $("#gMinus").addEventListener("click", () => setGuests(guests - 1));
 
+  /* ---------- Pasos: 1) asistencia y datos · 2) menú (solo si asistirá) ---------- */
+  const step1 = $("#step1"), step2 = $("#step2"), backBtn = $("#backBtn"), sendBtn = $("#sendBtn");
+  let step = 1;
+  const setBtn = (t) => (UI.setLabel ? UI.setLabel(sendBtn, t) : (sendBtn.textContent = t));
+  const btnText = () => (step === 1 && form.elements.att.value === "yes" ? "Continuar al menú" : "Enviar confirmación");
+  const scrollCard = () => {
+    const card = $("#rsvpCard");
+    if (UI.lenis) UI.lenis.scrollTo(card, { offset: -12, duration: 0.9 });
+    else card.scrollIntoView({ behavior: UI.reduce ? "auto" : "smooth", block: "start" });
+  };
+  function goStep(n, first) {
+    step = n;
+    const show = n === 1 ? step1 : step2, hide = n === 1 ? step2 : step1;
+    hide.hidden = true;
+    show.hidden = false;
+    backBtn.hidden = n === 1;
+    errBox.textContent = "";
+    setBtn(btnText());
+    if (n === 2) {
+      $("#step2Title").textContent = `¡Qué alegría, ${first}!`;
+      renderMeals();
+      $("#step2Title").focus({ preventScroll: true });
+    }
+    if (window.gsap && !UI.reduce) gsap.fromTo(show, { opacity: 0, x: n === 2 ? 24 : -24 }, { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" });
+    scrollCard();
+  }
+  backBtn.addEventListener("click", () => goStep(1));
+
   /* ---------- Asistiré / No podré ---------- */
   // yes: true (asistirá) · false (no podrá) · null (aún no elige: ninguna sección abierta).
   // Acompañantes y plato del almuerzo solo aparecen después de «Con gusto asistiré».
@@ -141,7 +169,7 @@
     }
     markSuggestion();
   }
-  $$('input[name="att"]').forEach((r) => r.addEventListener("change", () => { errBox.textContent = ""; setMode(form.elements.att.value === "yes"); }));
+  $$('input[name="att"]').forEach((r) => r.addEventListener("change", () => { errBox.textContent = ""; setMode(form.elements.att.value === "yes"); setBtn(btnText()); }));
   setMode(null);
   gHint.textContent = "Solo tú";
   renderMeals();
@@ -241,6 +269,7 @@
     if (!nameOk(first)) return fail("#fName", "Escribe tu nombre (mínimo 2 letras).");
     if (!nameOk(last)) return fail("#fLast", "Escribe tu apellido (mínimo 2 letras).");
     if (!attending && !message) return fail("#fMsg", "Déjanos unas palabras o elige una de las frases.");
+    if (attending && step === 1) return goStep(2, first);
     if (attending) {
       const n = guests + 1, i = meals.slice(0, n).findIndex((m) => !m);
       if (i !== -1) {
@@ -256,9 +285,9 @@
     // Anti-spam: los robots llenan el campo invisible o envían al instante
     if ($("#fTrap").value || Date.now() - pageStart < 3000) return showThanks({ first, attending, guests: 0, pollo: 0, cuy: 0, message: "" }, true);
 
-    const btn = $("#sendBtn");
-    const label = (t) => (UI.setLabel ? UI.setLabel(btn, t) : (btn.textContent = t));
+    const btn = sendBtn, label = setBtn;
     btn.disabled = true;
+    backBtn.hidden = true;
     label("Enviando…");
     try {
       const sb = await getSupabase();
@@ -286,7 +315,8 @@
       errBox.textContent = "No pudimos enviar tu respuesta. Revisa tu conexión a internet e inténtalo otra vez.";
     } finally {
       btn.disabled = false;
-      label("Enviar confirmación");
+      backBtn.hidden = step === 1 || !thanks.hidden;
+      label(btnText());
     }
   });
 })();

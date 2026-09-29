@@ -428,3 +428,9 @@ html.has-cursor input,html.has-cursor textarea{cursor:text}
 /* Pregunta de asistencia (nada viene marcado: el plato aparece solo al aceptar) */
 .choice-q{margin-bottom:10px;font-family:var(--serif);font-size:1.12rem;text-align:center;color:var(--ink)}
 .choice-err{margin:-12px 0 16px;font-size:.85rem;text-align:center;color:#a4503a}
+
+/* Paso 2: menú */
+.step-kicker{margin-bottom:6px;text-align:center;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-4)}
+.step-title{margin-bottom:6px;text-align:center;font-family:var(--serif);font-weight:400;font-size:1.45rem;color:var(--ink);outline:none}
+#step2 .meals{padding-top:6px;border-top:0}
+.back-btn{display:block;margin:14px auto 0}
