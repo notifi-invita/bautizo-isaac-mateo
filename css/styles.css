@@ -398,3 +398,29 @@ html.has-cursor input,html.has-cursor textarea{cursor:text}
 }
 /* Mejores cortes de línea donde el navegador lo permite */
 .invite-text,.lead,.verse,.foot-small,.thanks p{text-wrap:pretty}
+
+/* ================= PLATO DEL ALMUERZO (uno por persona) ================= */
+.meals{min-width:0;margin:0 0 18px;padding:16px 0 0;border:0;border-top:1px solid var(--line);text-align:center}
+.meals-q{float:left;width:100%;padding:0;margin-bottom:4px;font-family:var(--serif);font-size:1.12rem;line-height:1.35;color:var(--ink)}
+.meals-hint{clear:both;margin-bottom:12px;font-size:.88rem;color:var(--ink-soft)}
+.meal-rows{display:flex;flex-direction:column;gap:8px}
+.meal-row{display:grid;grid-template-columns:auto 1fr 1fr;align-items:center;gap:8px;padding:8px;border-radius:16px;background:#faf6ee;transition:box-shadow .3s}
+.meal-row.err{box-shadow:inset 0 0 0 1.5px #c0674f}
+.meal-who{min-width:6.6em;padding-left:6px;text-align:left;font-size:.88rem;color:var(--ink-soft)}
+.meal-opt{position:relative;cursor:pointer}
+.meal-opt input{position:absolute;opacity:0;pointer-events:none}
+.meal-opt span{display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:8px 10px;border:1.5px solid var(--line);border-radius:999px;background:#fff;font-size:.92rem;line-height:1.2;transition:border-color .25s,background .25s,color .25s,box-shadow .25s}
+.meal-opt span::before{content:"";flex:none;width:14px;height:14px;border:1.5px solid var(--gold-2);border-radius:50%;background:#fff;transition:background .25s,box-shadow .25s}
+.meal-opt input:checked + span{border-color:var(--gold-3);background:linear-gradient(180deg,#fffaf0,#f7ead0);color:var(--gold-4);box-shadow:0 10px 20px -14px rgba(140,95,45,.7)}
+.meal-opt input:checked + span::before{background:var(--gold-3);box-shadow:inset 0 0 0 3px #fff}
+.meal-opt input:focus-visible + span{outline:2px solid var(--gold-3);outline-offset:2px}
+.meals-sum{margin-top:10px;font-size:.88rem;color:var(--gold-4)}
+.thanks-meals{font-family:var(--serif);font-style:italic;color:var(--gold-4)}
+/* En celular: el nombre de la persona arriba y las dos opciones debajo, a lo ancho */
+@media (max-width:540px){
+  .meal-row{grid-template-columns:1fr 1fr;gap:6px 8px}
+  .meal-who{grid-column:1 / -1;min-width:0;padding:2px 0 0;text-align:center}
+}
+@media (max-width:360px){
+  .meal-opt span{gap:6px;padding:8px 6px;font-size:.86rem}
+}

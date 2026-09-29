@@ -31,6 +31,15 @@ create table if not exists public.rsvps (
 alter table public.rsvps
   add column if not exists message text check (message is null or char_length(message) <= 500);
 
+-- Plato del almuerzo: cuántas personas de esta respuesta comen pollo y cuántas cuy.
+-- Cada persona elige uno solo, así que entre los dos suman exactamente las personas que asisten
+-- (el invitado + sus acompañantes). Quien no asiste no elige plato.
+alter table public.rsvps add column if not exists pollo int not null default 0 check (pollo between 0 and 11);
+alter table public.rsvps add column if not exists cuy   int not null default 0 check (cuy between 0 and 11);
+alter table public.rsvps drop constraint if exists rsvps_platos_check;
+alter table public.rsvps add constraint rsvps_platos_check
+  check ((attending and pollo + cuy = guests + 1) or (not attending and pollo = 0 and cuy = 0)) not valid;
+
 -- Administradores: solo los usuarios anotados aquí pueden ver y borrar respuestas.
 -- (Aunque alguien lograra crear una cuenta, no vería nada.)
 -- Para anotarte usa sql/agregar-admin.sql después de crear tu usuario.
@@ -51,7 +60,7 @@ alter table public.rsvps enable row level security;
 -- Permisos explícitos (los proyectos nuevos de Supabase ya no los dan solos)
 grant usage on schema public to anon, authenticated;
 revoke all on public.rsvps from anon, authenticated;
-grant insert (id, first_name, last_name, attending, guests, message) on public.rsvps to anon;
+grant insert (id, first_name, last_name, attending, guests, message, pollo, cuy) on public.rsvps to anon;
 grant select, delete on public.rsvps to authenticated;
 
 drop policy if exists "invitados pueden enviar" on public.rsvps;

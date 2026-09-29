@@ -24,6 +24,12 @@
   }
   const fmtDate = (iso) => new Date(iso).toLocaleString("es-EC", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: TZ });
   const people = (r) => (r.attending ? 1 + r.guests : 0);
+  const M = C.menu, nameOf = (id) => (M.options.find((o) => o.id === id) || {}).name || id;
+  $("#lPollo").textContent = nameOf("pollo");
+  $("#lCuy").textContent = nameOf("cuy");
+  // "2 pollo · 1 cuy" (las respuestas anteriores al menú no tienen plato)
+  const dishText = (r) => (!r.attending ? "—" : (r.pollo || 0) + (r.cuy || 0) === 0 ? "Sin elegir" :
+    M.options.filter((o) => r[o.id] > 0).map((o) => `${r[o.id]} ${nameOf(o.id).toLowerCase()}`).join(" · "));
 
   function filtered() {
     const q = $("#q").value.trim().toLowerCase();
@@ -43,7 +49,7 @@
     const list = filtered();
     if (!list.length) {
       const tr = document.createElement("tr"), td = document.createElement("td");
-      td.colSpan = 8;
+      td.colSpan = 9;
       td.className = "empty";
       td.textContent = rows.length ? "No hay respuestas con ese filtro." : "Todavía no hay confirmaciones.";
       tr.appendChild(td);
@@ -71,6 +77,7 @@
       cell("").appendChild(tag);
       cell(r.attending ? String(r.guests) : "—", "num");
       cell(String(people(r)), "num");
+      cell(dishText(r));
       cell(r.message || "", "msg");
       cell(fmtDate(r.created_at));
       const del = document.createElement("button");
@@ -102,6 +109,8 @@
     $("#sYes").textContent = yes.length;
     $("#sGuests").textContent = guests;
     $("#sNo").textContent = rows.length - yes.length;
+    $("#sPollo").textContent = yes.reduce((a, r) => a + (r.pollo || 0), 0);
+    $("#sCuy").textContent = yes.reduce((a, r) => a + (r.cuy || 0), 0);
   }
 
   // auto = recarga cada minuto: si nada cambió, no se vuelve a dibujar la tabla
@@ -154,9 +163,9 @@
   $("#refresh").addEventListener("click", () => load(false));
   $("#logout").addEventListener("click", async () => { await sb.auth.signOut(); rows = []; show(false); });
   $("#csv").addEventListener("click", () => {
-    const head = ["Nombre", "Apellido", "Asiste", "Acompañantes", "Total personas", "Mensaje", "Fecha"];
+    const head = ["Nombre", "Apellido", "Asiste", "Acompañantes", "Total personas", nameOf("pollo"), nameOf("cuy"), "Mensaje", "Fecha"];
     const lines = rows.map((r) =>
-      [r.first_name, r.last_name, r.attending ? "Sí" : "No", r.guests, people(r), r.message || "", fmtDate(r.created_at)].map(csvCell).join(",")
+      [r.first_name, r.last_name, r.attending ? "Sí" : "No", r.guests, people(r), r.pollo || 0, r.cuy || 0, r.message || "", fmtDate(r.created_at)].map(csvCell).join(",")
     );
     const blob = new Blob(["﻿" + [head.map(csvCell).join(","), ...lines].join("\r\n")], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"), url = URL.createObjectURL(blob);

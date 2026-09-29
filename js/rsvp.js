@@ -64,6 +64,52 @@
   }
   msg.addEventListener("input", markSuggestion);
 
+  /* ---------- Plato del almuerzo: uno por persona ---------- */
+  const M = C.menu, mealRows = $("#mealRows"), mealsSum = $("#mealsSum");
+  $("#mealsQ").textContent = M.question;
+  $("#mealsHint").textContent = M.hint;
+  const meals = []; // elección de cada persona: "pollo" | "cuy" | null
+  const who = (i) => (i === 0 ? "Tú" : `Acompañante ${i}`);
+  const mealName = (id) => (M.options.find((o) => o.id === id) || {}).name || id;
+  const mealCount = (id, n) => meals.slice(0, n).filter((m) => m === id).length;
+  function mealRow(i) {
+    const row = document.createElement("div");
+    row.className = "meal-row";
+    row.setAttribute("role", "radiogroup");
+    row.setAttribute("aria-label", `Plato para ${i === 0 ? "ti" : who(i).toLowerCase()}`);
+    const w = document.createElement("span");
+    w.className = "meal-who";
+    w.textContent = who(i);
+    row.appendChild(w);
+    M.options.forEach((o) => {
+      const label = document.createElement("label"), input = document.createElement("input"), span = document.createElement("span");
+      label.className = "meal-opt";
+      input.type = "radio"; input.name = `meal-${i}`; input.value = o.id; input.checked = meals[i] === o.id;
+      input.addEventListener("change", () => { meals[i] = o.id; row.classList.remove("err"); updateMeals(); });
+      span.textContent = o.name;
+      label.append(input, span);
+      row.appendChild(label);
+    });
+    return row;
+  }
+  function updateMeals() {
+    const n = guests + 1, missing = n - meals.slice(0, n).filter(Boolean).length;
+    mealsSum.textContent = M.options.map((o) => `${o.name}: ${mealCount(o.id, n)}`).join(" · ") +
+      (missing ? ` · ${missing === 1 ? "falta 1 persona" : `faltan ${missing} personas`}` : "");
+  }
+  // Una fila por persona (se agregan o quitan sin perder lo ya elegido)
+  function renderMeals() {
+    const n = guests + 1;
+    while (meals.length < n) meals.push(null);
+    while (mealRows.children.length > n) mealRows.lastElementChild.remove();
+    while (mealRows.children.length < n) {
+      const row = mealRow(mealRows.children.length);
+      mealRows.appendChild(row);
+      if (window.gsap && !UI.reduce) gsap.from(row, { opacity: 0, y: -8, duration: 0.45, ease: "power3.out" });
+    }
+    updateMeals();
+  }
+
   /* ---------- Acompañantes ---------- */
   let guests = 0;
   const gNum = $("#gNum"), gHint = $("#gHint");
@@ -71,6 +117,7 @@
     guests = Math.max(0, Math.min(C.maxGuests, n));
     gNum.textContent = guests;
     gHint.textContent = guests === 0 ? "Solo tú" : guests === 1 ? "Tú y 1 acompañante · 2 personas" : `Tú y ${guests} acompañantes · ${guests + 1} personas`;
+    renderMeals();
     if (window.gsap && !UI.reduce) gsap.fromTo(gNum, { scale: 1.35 }, { scale: 1, duration: 0.5, ease: "power3.out" });
   }
   $("#gPlus").addEventListener("click", () => setGuests(guests + 1));
@@ -94,6 +141,7 @@
   $$('input[name="att"]').forEach((r) => r.addEventListener("change", () => setMode(form.elements.att.value === "yes")));
   setMode(true);
   gHint.textContent = "Solo tú";
+  renderMeals();
 
   /* ---------- Estados finales ---------- */
   function showClosed() {
@@ -110,6 +158,9 @@
       $("#thanksTitle").textContent = `Gracias por tu cariño, ${d.first}`;
       $("#thanksText").textContent = "Te vamos a extrañar, pero sabemos que nos acompañas desde el corazón. Tus palabras ya llegaron a nuestra familia:";
     }
+    const tm = $("#thanksMeals"), dishes = d.attending ? M.options.filter((o) => d[o.id] > 0).map((o) => `${o.name} (${d[o.id]})`) : [];
+    tm.hidden = !dishes.length;
+    tm.textContent = dishes.length ? `Plato${d.pollo + d.cuy === 1 ? "" : "s"} elegido${d.pollo + d.cuy === 1 ? "" : "s"}: ${dishes.join(" y ")}.` : "";
     quote.hidden = !d.message;
     quote.textContent = d.message ? `“${d.message}”` : "";
     if (fresh) {
@@ -181,9 +232,20 @@
     if (!nameOk(first)) return fail("#fName", "Escribe tu nombre (mínimo 2 letras).");
     if (!nameOk(last)) return fail("#fLast", "Escribe tu apellido (mínimo 2 letras).");
     if (!attending && !message) return fail("#fMsg", "Déjanos unas palabras o elige una de las frases.");
+    if (attending) {
+      const n = guests + 1, i = meals.slice(0, n).findIndex((m) => !m);
+      if (i !== -1) {
+        const row = mealRows.children[i];
+        row.classList.add("err");
+        errBox.textContent = n === 1 ? "Elige tu plato para el almuerzo." : `Elige el plato de cada persona: falta «${who(i)}».`;
+        row.querySelector("input").focus();
+        return;
+      }
+    }
+    const pollo = attending ? mealCount("pollo", guests + 1) : 0, cuy = attending ? mealCount("cuy", guests + 1) : 0;
 
     // Anti-spam: los robots llenan el campo invisible o envían al instante
-    if ($("#fTrap").value || Date.now() - pageStart < 3000) return showThanks({ first, attending, guests: 0, message: "" }, true);
+    if ($("#fTrap").value || Date.now() - pageStart < 3000) return showThanks({ first, attending, guests: 0, pollo: 0, cuy: 0, message: "" }, true);
 
     const btn = $("#sendBtn");
     const label = (t) => (UI.setLabel ? UI.setLabel(btn, t) : (btn.textContent = t));
@@ -195,7 +257,7 @@
       const id = newId();
       if (sb) {
         const { error } = await sb.from("rsvps").insert({
-          id, first_name: first, last_name: last, attending, guests: attending ? guests : 0, message: message || null
+          id, first_name: first, last_name: last, attending, guests: attending ? guests : 0, pollo, cuy, message: message || null
         });
         if (error) {
           if (error.code === "23505") {
@@ -207,7 +269,7 @@
       } else {
         UI.toast("Vista previa: la respuesta no se guardó porque aún falta conectar Supabase.");
       }
-      const data = { id, first, attending, guests: attending ? guests : 0, message };
+      const data = { id, first, attending, guests: attending ? guests : 0, pollo, cuy, message };
       if (sb) { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (_) {} }
       showThanks(data, true);
     } catch (err) {

@@ -11,6 +11,8 @@ select
   last_name   as apellido,
   case when attending then 'Sí asistirá' else 'No podrá' end               as respuesta,
   guests      as acompanantes,
+  pollo       as pollo_al_horno,
+  cuy         as cuy_asado,
   message     as mensaje
 from public.rsvps
 order by created_at desc;
@@ -20,6 +22,8 @@ select
   count(*) filter (where attending)                         as familias_que_asisten,
   coalesce(sum(guests + 1) filter (where attending), 0)     as personas_en_total,
   count(*) filter (where not attending)                     as no_podran_asistir,
+  coalesce(sum(pollo) filter (where attending), 0)          as platos_pollo_al_horno,
+  coalesce(sum(cuy) filter (where attending), 0)            as platos_cuy_asado,
   count(*)                                                  as respuestas
 from public.rsvps;
 

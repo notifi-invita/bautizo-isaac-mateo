@@ -33,6 +33,17 @@ window.CONFIG = {
   rsvpDeadline: "2026-10-04",      // domingo 4 de octubre (incluido)
   maxGuests: 10,                   // máximo de acompañantes por persona
 
+  // ---- Almuerzo: cada persona que asiste elige UN plato ----
+  // Puedes cambiar los nombres; los id "pollo" y "cuy" no se cambian (son las columnas de la base).
+  menu: {
+    question: "¿Qué plato deseas que te sirvamos en el almuerzo?",
+    hint: "Por favor, elige un solo plato para cada persona.",
+    options: [
+      { id: "pollo", name: "Pollo al horno" },
+      { id: "cuy", name: "Cuy asado" }
+    ]
+  },
+
   // ---- Textos ----
   texts: {
     invite:
