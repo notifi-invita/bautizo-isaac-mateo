@@ -5,6 +5,7 @@
   const $ = (s) => document.querySelector(s);
   const TZ = "America/Guayaquil";
 
+  $("#loginSub").textContent = "Solo para " + C.parents.join(" y ");
   const configured = C.SUPABASE_URL && !C.SUPABASE_URL.startsWith("TU_");
   if (!configured || !window.supabase) {
     $("#loginErr").textContent = "Falta configurar SUPABASE_URL y SUPABASE_ANON_KEY en js/config.js.";

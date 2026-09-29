@@ -4,11 +4,14 @@
    solo transform/opacity en lo que se mueve cada cuadro,
    bucles mínimos y sutiles, y orden narrativo claro.
 
+   Carga:     monograma que se escribe con el progreso real
+              (loader.js) → el sobre aparece.
    Apertura:  sello que se agrieta y se parte (física real) →
               solapa 3D → la carta sale → la cámara se acerca →
               destello de luz → aparece la tarjeta.
    Tarjeta:   papel → flores que se pintan → marcos dorados →
-              foto y corona → palomas que llegan volando →
+              foto con revelado líquido (WebGL) y corona →
+              palomas que llegan volando →
               "Bautizo" escrito a mano → cinta → texto.
    ============================================================ */
 (function () {
@@ -18,7 +21,21 @@
   const rand = (a, b) => Math.random() * (b - a) + a;
   const UI = window.UI, reduce = UI.reduce, LITE = UI.LITE;
   const isTouch = window.matchMedia("(hover: none)").matches;
-  const intro = $("#intro"), openBtn = $("#openBtn");
+  const intro = $("#intro"), openBtn = $("#openBtn"), quietBtn = $("#openQuiet"), musicBtn = $("#musicBtn");
+  const sfx = (name, arg) => window.SFX && SFX[name](arg);
+  // La pantalla de carga avisa cuándo empezar. Si algo fallara, a los 12 s se retira igual
+  // (la carga espera como máximo 7 s más su salida).
+  const whenReady = Promise.race([UI.ready || Promise.resolve(), new Promise((r) => setTimeout(() => {
+    const l = $("#loader");
+    if (l) l.hidden = true;
+    r();
+  }, 12000))]);
+  // Mientras carga, el sobre no recibe foco ni toques; si alguien alcanza a pedirlo, se recuerda
+  const introCtrls = [$(".env-stage"), quietBtn];
+  introCtrls.forEach((el) => { el.inert = true; });
+  let wanted = null;
+  const release = () => { introCtrls.forEach((el) => { el.inert = false; }); };
+  const focusMain = () => { const m = $("#main"); m.setAttribute("tabindex", "-1"); m.focus({ preventScroll: true }); };
   let lenis = null;
 
   function unlock() {
@@ -34,9 +51,25 @@
 
   // Sin GSAP o con "reducir movimiento": apertura directa, todo visible
   if (!window.gsap || reduce) {
-    const direct = () => { intro.hidden = true; unlock(); UI.startMusic(); };
-    if (window.__openRequested) direct();
-    else openBtn.addEventListener("click", direct);
+    let ok = false, done = false;
+    const direct = (withSound) => {
+      if (!ok) { wanted = withSound; return; }
+      if (done) return;
+      done = true;
+      intro.hidden = true;
+      unlock();
+      UI.setSound(withSound);
+      musicBtn.classList.add("is-shown");
+      focusMain();
+    };
+    openBtn.addEventListener("click", () => direct(true));
+    quietBtn.addEventListener("click", () => direct(false));
+    whenReady.then(() => {
+      ok = true;
+      release();
+      document.body.classList.remove("is-loading");
+      if (wanted !== null) direct(wanted);
+    });
     return;
   }
 
@@ -59,7 +92,10 @@
 
   /* ================= ORO QUE REACCIONA A LA INCLINACIÓN ================= */
   const foils = $$(".foil-grad");
-  const tilt = { x: 0, y: 0, auto: -1.1 };
+  // Las variables de luz se ponen solo en los elementos que las usan (en :root obligaban
+  // a recalcular los estilos de toda la página en cada cuadro)
+  const lit = $$(".seal-face, #photoRing, #coin");
+  const tilt = (UI.tilt = { x: 0, y: 0, auto: -1.1 });
   let lastKey = "";
   gsap.ticker.add(() => {
     const sx = Math.max(-1.6, Math.min(1.6, tilt.x + tilt.auto)), sy = tilt.y;
@@ -67,9 +103,8 @@
     if (key === lastKey) return;
     lastKey = key;
     for (const g of foils) g.setAttribute("gradientTransform", `translate(${(sx * 0.32 * Number(g.dataset.w || 1)).toFixed(2)} 0)`);
-    const root = document.documentElement.style;
-    root.setProperty("--lx", (34 + sx * 18).toFixed(1) + "%");
-    root.setProperty("--ly", (28 + sy * 14).toFixed(1) + "%");
+    const lx = (34 + sx * 18).toFixed(1) + "%", ly = (28 + sy * 14).toFixed(1) + "%";
+    for (const el of lit) { el.style.setProperty("--lx", lx); el.style.setProperty("--ly", ly); }
   });
   // Un destello lento que recorre el oro de vez en cuando
   gsap.to(tilt, { auto: 1.1, duration: 2.6, ease: "inOut", yoyo: true, repeat: -1, repeatDelay: 3.5, delay: 1 });
@@ -105,21 +140,29 @@
 
   /* ================= SOBRE EN REPOSO ================= */
   const stage = $(".env-stage"), letter = $("#envLetter"), flap = $("#envFlap"), seal = $("#seal");
+  // Capas separadas en profundidad: al inclinarse el sobre en 3D el sello siempre queda
+  // encima (si no, la solapa podía "tapar" el sello y el toque no llegaba).
+  gsap.set(letter, { z: 1 });
+  gsap.set(flap, { z: 3 });
+  gsap.set(seal, { z: 6 });
   gsap.set(".seal-crack path", { drawSVG: "0%" });
-  const idle = gsap.timeline()
+  // Todo arranca en pausa: se reproduce cuando la pantalla de carga se retira
+  const idle = gsap.timeline({ paused: true })
     .from(".intro-glow", { opacity: 0, scale: 0.7, duration: 2.2 })
     .from("#introTo", { opacity: 0, y: 14, duration: 1.4 }, 0.2)
     .from(env, { opacity: 0, y: 40, scale: 0.95, duration: 1.8 }, 0.35)
     .from(seal, { opacity: 0, scale: 0.7, duration: 1.4 }, 1.05)
-    .from(".intro-hint", { opacity: 0, y: 8, duration: 1.2 }, 1.4);
-  const float = gsap.to(stage, { y: -6, duration: 3.4, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 2 });
-  const sealPulse = gsap.to(".seal-glow", { opacity: 0.5, scale: 1.06, duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 2.2 });
+    .from(".intro-hint", { opacity: 0, y: 8, duration: 1.2 }, 1.4)
+    .from(quietBtn, { opacity: 0, y: 8, duration: 1.2 }, 1.6);
+  const float = gsap.to(stage, { y: -6, duration: 3.4, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 2, paused: true });
+  const sealPulse = gsap.to(".seal-glow", { opacity: 0.5, scale: 1.06, duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 2.2, paused: true });
 
   /* ================= EL SELLO SE PARTE ================= */
   function breakSeal() {
     sealPulse.kill();
     const tl = gsap.timeline();
-    tl.to(seal, { scale: 0.93, duration: 0.14, ease: "power2.in" })
+    tl.call(sfx, ["crack"], 0.08)
+      .to(seal, { scale: 0.93, duration: 0.14, ease: "power2.in" }, 0)
       .to(".seal-glow", { opacity: 1, scale: 1.2, duration: 0.3, ease: "soft" }, 0.06)
       .to(".seal-crack path", { drawSVG: "100%", duration: 0.2, ease: "power1.in" }, 0.1)
       .to(seal, { scale: 1, duration: 0.35, ease: "soft" }, 0.3)
@@ -144,10 +187,13 @@
   /* ================= SOLAPA, CARTA, CÁMARA Y LUZ ================= */
   function openEnvelope() {
     return gsap.timeline()
-      .to(["#introTo", ".intro-hint"], { opacity: 0, y: -8, duration: 0.6, ease: "soft" }, 0)
+      .to(["#introTo", ".intro-hint", quietBtn], { opacity: 0, y: -8, duration: 0.6, ease: "soft" }, 0)
+      .call(sfx, ["paper", 0.8], 0.4)
+      .call(sfx, ["paper", 1.1], 1.05)
+      .call(sfx, ["glint"], 2.45)
       .to(env, { rotationX: 0, rotationY: 0, duration: 0.6, ease: "soft" }, 0)
       .to(flap, { rotationX: 180, duration: 1, ease: "inOut" }, 0.4)
-      .set(flap, { zIndex: 0 }, 0.9)
+      .set(flap, { zIndex: 0, z: -1 }, 0.9)
       .to(letter, { yPercent: -58, duration: 1.3 }, 1.05)
       .to(stage, { y: 46, duration: 1.3 }, 1.05)
       .add(() => {
@@ -204,7 +250,7 @@
     gsap.set(".frame .draw", { drawSVG: "0%" });
     gsap.set(".glow", { opacity: 0, scale: 0.7 });
     gsap.set("#photoRing", { opacity: 0, scale: 0.92 });
-    gsap.set("#mainPhoto > *", { opacity: 0, scale: 1.1 });
+    if (!UI.photoReveal) gsap.set("#mainPhoto > *", { opacity: 0, scale: 1.1 });
     gsap.set(".wreath", { "--a": "0deg" });
     gsap.set(perched, { opacity: 0 });
     gsap.set(".title .gm", { drawSVG: "0%" });
@@ -227,7 +273,6 @@
     gsap.set(".cross .draw", { drawSVG: "0%", fillOpacity: 0 });
     gsap.set("#heroCta", { opacity: 0, y: 16 });
     // Secciones
-    gsap.set(".section .wash", { opacity: 0, scale: 1.08 });
     gsap.set(".sprig", { scaleX: 0, opacity: 0 });
     gsap.set(".sec-title", { clipPath: "polygon(0% -40%, 0% -40%, 0% 140%, 0% 140%)", y: 10 });
     split.verse = SplitText.create(".verse", { type: "lines", mask: "lines" });
@@ -244,7 +289,7 @@
 
   /* ================= ENTRADA DE LA TARJETA ================= */
   function dovesIn() {
-    const tl = gsap.timeline();
+    const tl = gsap.timeline().call(sfx, ["flutter", 10], 0.1);
     perched.forEach((d, i) => {
       const cyc = flapCycle(d, 0.085).play();
       const at = i * 0.3;
@@ -259,6 +304,13 @@
     return tl;
   }
 
+  // Foto: revelado líquido con WebGL si está disponible; si no, un fundido limpio
+  function photoIn() {
+    if (UI.photoReveal) return UI.photoReveal();
+    UI.photoDone = true;
+    return gsap.to("#mainPhoto > *", { opacity: 1, scale: 1, duration: 1.8 });
+  }
+
   function heroIn() {
     const title = $(".title svg");
     return gsap.timeline()
@@ -268,13 +320,13 @@
       .to(".frame .draw", { drawSVG: "100%", duration: 2.4, ease: "inOut", stagger: 0.06 }, 0.4)
       .to(".glow", { opacity: 1, scale: 1, duration: 2.2 }, 0.35)
       .to("#photoRing", { opacity: 1, scale: 1, duration: 1.6 }, 0.45)
-      .to("#mainPhoto > *", { opacity: 1, scale: 1, duration: 1.8 }, 0.75)
+      .add(photoIn(), 0.7)
       .to(".wreath", { "--a": "200deg", duration: 2.3, ease: "inOut" }, 0.8)
       .add(dovesIn(), 1.1)
       .add(writeScript(title), 1.8)
       .to("#ribbon", { clipPath: "inset(0% 0% 0% 0%)", scaleX: 1, duration: 1.2, ease: "inOut" }, 3.9)
-      .to(split.name.chars, { yPercent: 0, duration: 1, stagger: 0.03 }, 4.35)
-      .to(split.invite.lines, { yPercent: 0, duration: 1.2, stagger: 0.1 }, 4.7)
+      .to(split.name.chars, { yPercent: 0, duration: 1, stagger: 0.03, onComplete: () => split.name.revert() }, 4.35)
+      .to(split.invite.lines, { yPercent: 0, duration: 1.2, stagger: 0.1, onComplete: () => split.invite.revert() }, 4.7)
       .to(".bear", { opacity: 1, y: 0, duration: 1.4 }, 4.9)
       .to([".splat", ".sparkles"], { opacity: 1, duration: 2, ease: "soft" }, 5)
       .call(startLoops, null, 5.5);
@@ -301,6 +353,7 @@
       layerTilt = (nx, ny) => q.forEach((l) => { l.x(nx * l.k); l.y(ny * l.k); });
     }
     startLeaves();
+    if (UI.lightsOn) UI.lightsOn();
   }
 
   /* ================= REVELADOS AL HACER SCROLL ================= */
@@ -327,15 +380,14 @@
       .to(".scroll-cue", { opacity: 1, duration: 1 }, 1.2), "top 94%", true);
 
     $$(".section").forEach((sec) => {
-      const tl = gsap.timeline(), wash = $(".wash", sec), sprig = $(".sprig", sec), title = $(".sec-title", sec);
-      if (wash) tl.to(wash, { opacity: 0.6, scale: 1, duration: 2.6, ease: "soft" }, 0);
-      if (sprig) tl.to(sprig, { scaleX: 1, opacity: 1, duration: 1.4 }, 0.1);
+      const tl = gsap.timeline(), sprig = $(".sprig", sec), title = $(".sec-title", sec);
+      if (sprig) tl.to(sprig, { scaleX: 1, opacity: 1, duration: 1.4 }, 0);
       if (title) tl.to(title, { clipPath: "polygon(0% -40%, 110% -40%, 110% 140%, 0% 140%)", y: 0, duration: 1.7, ease: "inOut" }, 0.2);
       reveal(sec, tl, "top 80%");
     });
-    reveal(".verse", gsap.to(split.verse.lines, { yPercent: 0, duration: 1.3, stagger: 0.1 }));
+    reveal(".verse", gsap.to(split.verse.lines, { yPercent: 0, duration: 1.3, stagger: 0.1, onComplete: () => split.verse.revert() }));
     reveal(".verse-ref", gsap.to(".verse-ref", { opacity: 1, y: 0, duration: 1.1 }));
-    reveal(".lead", gsap.to(split.lead.lines, { yPercent: 0, duration: 1.2, stagger: 0.08 }));
+    reveal(".lead", gsap.to(split.lead.lines, { yPercent: 0, duration: 1.2, stagger: 0.08, onComplete: () => split.lead.revert() }));
     reveal(".flipclock", gsap.to(".unit", { opacity: 1, y: 0, duration: 1.2, stagger: 0.09 }));
     reveal(".date-long", gsap.to(".date-long", { opacity: 1, y: 0, duration: 1.1 }));
     reveal(".events", gsap.timeline()
@@ -378,6 +430,7 @@
   /* ================= SUELTA DE PALOMAS AL CONFIRMAR ================= */
   UI.releaseDoves = function (from, n) {
     const r = from.getBoundingClientRect(), layer = $("#flyLayer");
+    sfx("flutter", 12);
     for (let i = 0; i < n; i++) {
       const w = rand(70, 120), d = document.createElement("div");
       d.className = "fly-dove";
@@ -400,12 +453,22 @@
   };
 
   /* ================= APERTURA ================= */
-  let ready = false, pending = false, opened = false;
-  function open() {
+  // El sello abre con sonido; "Abrir en silencio" abre sin él. Ambos son un gesto del
+  // invitado, así el navegador permite reproducir la música.
+  let ready = false, opened = false;
+  function showMusicBtn() {
+    musicBtn.classList.add("is-shown");
+    gsap.from(musicBtn, { opacity: 0, scale: 0.6, duration: 1, ease: "out" });
+  }
+  function open(withSound) {
+    if (!ready) { wanted = withSound; return; }
     if (opened) return;
     opened = true;
+    // El sello deja de ser "tocable" (y el cursor vuelve a su forma normal)
+    openBtn.style.pointerEvents = quietBtn.style.pointerEvents = "none";
+    if (UI.cursorState) UI.cursorState("base");
     askGyro();
-    UI.startMusic();
+    UI.setSound(withSound, 2.5);
     idle.progress(1).kill();
     float.kill();
     gsap.set(stage, { y: 0 });
@@ -416,13 +479,20 @@
       .add(openEnvelope(), 0.35)
       .add(heroIn(), HERO)
       .call(() => { introActive = false; unlock(); initScroll(); ScrollTrigger.refresh(); }, null, HERO + 0.4)
-      .call(() => { intro.hidden = true; const m = $("#main"); m.setAttribute("tabindex", "-1"); m.focus({ preventScroll: true }); }, null, HERO + 1.8);
+      .call(() => { intro.hidden = true; focusMain(); }, null, HERO + 1.8)
+      .call(showMusicBtn, null, HERO + 5.6);
   }
-  openBtn.addEventListener("click", () => (ready ? open() : (pending = true)));
-  const fontsReady = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-  Promise.race([fontsReady, new Promise((r) => setTimeout(r, 2500))]).then(() => {
+  openBtn.addEventListener("click", () => open(true));
+  quietBtn.addEventListener("click", () => open(false));
+  whenReady.then(() => {
     prepare();
+    // Ya con la tarjeta en su estado inicial (casi invisible) se deja pintar debajo del sobre
+    document.body.classList.remove("is-loading");
     ready = true;
-    if (pending || window.__openRequested) open();
+    release();
+    idle.play();
+    float.play();
+    sealPulse.play();
+    if (wanted !== null) open(wanted);
   });
 })();

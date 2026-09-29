@@ -3,15 +3,15 @@
    Edita solo este archivo para cambiar textos, fechas y claves.
    ============================================================ */
 window.CONFIG = {
-  // ---- Supabase (ver LEEME.md, paso 2) ----
+  // ---- Supabase (ver README.md, paso 2) ----
   SUPABASE_URL: "TU_SUPABASE_URL",
   SUPABASE_ANON_KEY: "TU_SUPABASE_ANON_KEY",
 
   // ---- Familia ----
   baby: "Isaac Mateo",
   initials: "IM",
-  parents: ["Andrés", "Cristina"],
-  godparents: ["María José", "Julio"],
+  parents: ["Cristina", "Andrés"],       // primero mamá, luego papá
+  godparents: ["María José", "Julio"],   // primero madrina, luego padrino
 
   // ---- Evento ----
   event: {

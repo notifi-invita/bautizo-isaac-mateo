@@ -15,17 +15,26 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#f1ebdf">
 <meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="preload" href="fonts/pinyon-script.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="img/corner-a-front.webp" as="image">
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/styles.css">
-<noscript><style>#intro{display:none}body.is-locked{overflow:auto;height:auto}</style></noscript>
+<noscript><style>#intro{display:none}body.is-locked{overflow:auto;height:auto}body.is-loading main{visibility:visible}</style></noscript>
 </head>
-<body class="is-locked">
+<body class="is-locked is-loading">
 <!--PREVIEW-START-->
 
 <!-- ================= SOBRE DE ENTRADA ================= -->
 <div id="intro" class="intro">
+  <!-- Pantalla de carga: el monograma se escribe con el progreso real -->
+  <div class="loader" id="loader" role="status" aria-live="polite">
+    <svg class="loader-mono" viewBox="-12 42.8 402.7 169.4" aria-hidden="true"><defs><linearGradient id="lmGold" gradientUnits="userSpaceOnUse" x1="0" y1="40" x2="400" y2="220"><stop offset="0" stop-color="#b8894e"/><stop offset=".5" stop-color="#e6cc93"/><stop offset="1" stop-color="#94693a"/></linearGradient></defs><g><path class="lm" d="M22.2 200.2Q12 200.2 6.3 196Q0.7 191.8 0.1 186.1Q-0.3 181.6 2.5 179.5Q5.3 177.3 8.3 177.1Q10 176.9 11.7 177.7Q13.4 178.6 13.7 181.1Q13.9 182.9 12.4 184.4Q10.9 185.9 8.7 186.3Q6 186.8 4.1 185.8L4.1 186.4Q4.1 191.1 9 194.4Q13.9 197.7 22 197.7Q29.5 197.7 37.1 194.6Q44.6 191.6 53.2 184.4Q61.7 177.1 72.2 164.6Q66.7 162 62.9 156.3Q59.2 150.7 59.2 140.6Q59.2 129.6 64.7 118.6Q70.3 107.6 80.4 97.8Q90.4 88 104.1 80.4Q117.7 72.9 133.9 68.5Q150.2 64.1 168 64.1Q170.2 64.1 172.3 64.3Q174.4 64.5 176.5 64.7Q178.7 64.8 180.8 65.1Q182.9 65.4 185.1 65.4Q187.5 65.4 189.9 65.1Q192.4 64.7 195 64.7Q198.6 64.7 198.6 66.1Q198.6 67.9 195.4 68Q191.7 68.2 188.8 68.1Q185.9 68.1 183.4 68.1Q180.6 68.8 178.5 69.5Q176.5 70.2 174.2 71.1Q159.2 77.7 143.5 93.4Q127.8 109.1 110.4 134.3Q98.6 151.3 85.7 164.4L86.5 164.4Q96.9 164.4 108.3 159.3Q119.6 154.2 129.5 145.2Q139.5 136.2 145.7 124.4Q151.9 112.5 151.9 98.8Q151.9 96.6 152.2 96.2Q152.6 95.9 152.9 95.9Q154.1 95.9 154.1 100.7Q154.1 114.7 147.9 126.8Q141.7 138.9 131.5 147.9Q121.4 156.9 109.3 162Q97.2 167.1 85.4 167.1L83.1 167.1Q67.4 182.4 51.3 191.3Q35.3 200.2 22.2 200.2M73.9 162.5Q77.5 158.1 81.4 153Q85.3 147.9 89.5 142.2Q108.1 116.5 124.3 100.8Q140.5 85.2 154.1 77.3Q167.7 69.4 178.4 67.4Q176 67 173 66.8Q170.1 66.6 168.2 66.6Q158.1 66.6 146.5 70.1Q135 73.5 123.2 79.5Q111.5 85.5 100.9 93.3Q90.2 101 81.9 109.6Q73.5 118.2 68.7 126.8Q63.9 135.4 63.9 143.1Q63.9 151.7 66.7 156.1Q69.4 160.5 73.9 162.5"/><path class="lm" d="M275.5 200.2Q269.5 200.2 266.6 197.5Q263.7 194.8 263.7 190.9Q263.7 188.1 266.2 181.9Q268.8 175.8 276.8 163.7Q286.1 149.7 297.9 135.5Q309.6 121.3 321.8 107.9Q334.1 94.5 345.5 82.9Q356.8 71.3 365.6 62.6Q361.2 65.7 355.9 70.2Q350.5 74.7 342.7 81.8Q334.9 88.9 323.4 99.6Q312 110.4 295.6 126.1Q287.4 133.9 271.8 150Q256.3 166.1 235.3 190.6Q230.2 196.6 228.3 197.9Q226.4 199.3 225.3 199.3Q224.6 199.3 223.9 198.3Q223.1 197.4 223.1 195.2Q223.1 187 228.8 173.7Q234.5 160.4 244.9 143.5Q255.3 126.7 269.5 107.8Q283.8 89 300.9 69.6Q295.4 74.6 280.9 89.6Q266.4 104.7 240.7 132.9Q218.5 157.3 200.7 172.3Q182.9 187.3 169.2 194.2Q157.5 200.1 148.5 200.1Q139.4 200.1 134.8 196.6Q130.2 193.1 130.2 187.6Q130.2 183.1 133.2 180.9Q136.2 178.7 139.3 178.7Q140.8 178.7 142.5 179.8Q144.2 180.9 144.2 183.2Q144.2 185.1 142.6 186.6Q140.9 188.1 138.7 188.1Q137.4 188.1 136.2 187.9Q135 187.7 134 187Q134 187.4 133.9 187.7Q133.9 188 133.9 188.2Q133.9 192.4 137.6 194.9Q141.3 197.5 148.4 197.5Q155.7 197.5 165.1 193.2Q174.5 188.9 187.4 178.9Q200.2 168.8 217.6 151.9Q235 134.9 258.1 109.6Q277.5 88.4 290 76.5Q302.4 64.6 308.7 59.9Q315 55.1 315.9 55.1Q316.6 55.1 317.6 55.3Q318.6 55.6 318.6 56.1Q318.6 56.6 317.1 57.9Q316.1 58.8 314.7 60.1Q313.3 61.3 311.2 63.4Q308.7 66.1 303.5 73.5Q298.2 80.9 291.4 91.3Q284.5 101.7 276.7 113.8Q268.9 125.9 261.3 138.2Q253.7 150.5 247 161.5Q240.3 172.6 235.5 181Q230.7 189.5 228.6 193.7Q239.3 181.3 247.9 171.6Q256.5 161.8 264.5 153.3Q272.5 144.7 280.8 136.2Q289.2 127.7 299.1 118.1Q309.1 108.5 321.8 96.5Q338.7 80.8 350 71.6Q361.2 62.5 368 58.6Q374.7 54.8 377.7 54.8Q378.7 54.8 378.7 55.6Q378.7 56.3 376.2 58Q373.6 59.8 370.7 62.3Q361 70.8 349.8 84Q338.5 97.3 326.7 113Q314.8 128.7 303.3 144.9Q291.8 161.1 281.6 175.6Q277.1 182.3 274.9 185.8Q272.7 189.3 272.1 190.8Q271.5 192.3 271.5 193.5Q271.5 197.6 277.1 197.6Q280 197.6 284.8 196.1Q289.6 194.7 294.9 192Q300.2 189.4 304.1 185.5Q304.6 185.7 304.6 186.8Q304.6 188.3 304.1 189.1Q299.9 192.6 294.4 195.1Q289 197.6 283.9 198.9Q278.8 200.2 275.5 200.2"/></g></svg>
+    <div class="loader-bar" aria-hidden="true"><i id="loaderFill"></i></div>
+    <p class="loader-txt"><span id="loaderMsg">Preparando tu invitación</span> <span class="loader-pct" id="loaderPct" aria-hidden="true"></span></p>
+  </div>
   <div class="intro-glow" aria-hidden="true"></div>
   <p class="intro-to" id="introTo">Una invitación especial para ti</p>
   <div class="env-stage">
@@ -51,17 +60,20 @@
     </div>
   </div>
   <p class="intro-hint"><span class="hint-dot" aria-hidden="true"></span>Toca el sello para abrir<span id="musicHint"> · con música</span></p>
+  <button class="quiet-btn" id="openQuiet" type="button">Abrir en silencio</button>
   <div class="bloom" id="bloom" aria-hidden="true"></div>
 </div>
-<script>/* Si tocan el sello antes de que cargue todo, se recuerda y se abre al estar listo */document.getElementById("openBtn").addEventListener("click",function(){window.__openRequested=true},{once:true});</script>
 
 <!-- ================= CAPAS DE FONDO ================= -->
 <div class="paper" aria-hidden="true"></div>
+<canvas id="glLights" aria-hidden="true"></canvas>
 <div id="leaves" aria-hidden="true"></div>
 <div id="flyLayer" aria-hidden="true"></div>
 <canvas id="petals" aria-hidden="true"></canvas>
 
-<button id="musicBtn" class="music-btn" type="button" aria-label="Pausar o reanudar la música">
+<div class="cursor" id="cursor" aria-hidden="true"><div class="cursor-ring"><span class="cursor-label"></span></div><div class="cursor-dot"></div></div>
+
+<button id="musicBtn" class="music-btn" type="button" aria-label="Activar o silenciar el sonido" aria-pressed="false">
   <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
 </button>
 
@@ -116,7 +128,7 @@
       <p class="sr-only" id="dateSr"></p>
 
       <div class="family" id="family">
-        <div><p class="fam-label">Mis padres</p><p class="fam-names" data-list="parents">Andrés<br>Cristina</p></div>
+        <div><p class="fam-label">Mis padres</p><p class="fam-names" data-list="parents">Cristina<br>Andrés</p></div>
         <div class="cross" data-art="cross"></div>
         <div><p class="fam-label">Mis padrinos</p><p class="fam-names" data-list="godparents">María José<br>Julio</p></div>
       </div>
@@ -128,7 +140,6 @@
 
   <!-- ================= MENSAJE ================= -->
   <section class="section" id="mensaje">
-    <img class="wash" src="img/wash-3.webp" alt="" aria-hidden="true" loading="lazy">
     <div class="wrap">
       <div class="sprig" data-art="sprig"></div>
       <p class="verse" data-fill="verse"></p>
@@ -139,7 +150,6 @@
 
   <!-- ================= CUENTA REGRESIVA ================= -->
   <section class="section" id="cuenta">
-    <img class="wash" src="img/wash-8.webp" alt="" aria-hidden="true" loading="lazy">
     <div class="wrap">
       <h2 class="sec-title">Falta muy poco</h2>
       <div class="flipclock" id="flipclock" role="timer" aria-live="off">
@@ -148,13 +158,13 @@
         <div class="unit"><div class="flip" data-u="m"></div><small>minutos</small></div>
         <div class="unit"><div class="flip" data-u="s"></div><small>segundos</small></div>
       </div>
+      <p class="cd-done" id="cdDone" hidden></p>
       <p class="date-long" id="dateLong"></p>
     </div>
   </section>
 
   <!-- ================= DÓNDE Y CUÁNDO ================= -->
   <section class="section" id="detalles">
-    <img class="wash" src="img/wash-15.webp" alt="" aria-hidden="true" loading="lazy">
     <div class="wrap wide">
       <h2 class="sec-title">Dónde y cuándo</h2>
       <div class="events">
@@ -223,6 +233,7 @@
             <div class="suggest" id="suggest"></div>
           </div></div>
           <div class="field"><textarea id="fMsg" placeholder=" " maxlength="500" rows="3"></textarea><label for="fMsg" id="msgLabel">Un mensaje para Isaac Mateo (opcional)</label></div>
+          <div class="hp" aria-hidden="true"><label for="fTrap">Deja este campo vacío</label><input id="fTrap" name="bz_trap_7" type="text" tabindex="-1" autocomplete="off" data-1p-ignore data-lpignore="true"></div>
           <p class="form-error" id="formError" role="alert"></p>
           <button type="submit" class="btn btn-gold shine big" id="sendBtn">Enviar confirmación</button>
         </form>
@@ -235,7 +246,7 @@
         </div>
         <div class="thanks" id="closed" hidden>
           <h3>Las confirmaciones cerraron</h3>
-          <p>La fecha para confirmar ya pasó. Si deseas acompañarnos, escríbele directamente a Andrés o a Cristina.</p>
+          <p>La fecha para confirmar ya pasó. Si deseas acompañarnos, escríbele directamente a <span data-fill="parentsOr">Cristina o a Andrés</span>.</p>
         </div>
       </div>
     </div>
@@ -244,7 +255,7 @@
   <footer class="foot">
     <div class="sprig" data-art="sprig"></div>
     <p class="foot-closing" data-fill="closing">Con amor y gratitud,</p>
-    <p class="foot-names" id="footNames">Andrés y Cristina</p>
+    <p class="foot-names" id="footNames">Cristina y Andrés</p>
     <p class="foot-small">Gracias por ser parte de este momento tan especial.</p>
   </footer>
 </main>
@@ -263,11 +274,14 @@
 <script src="vendor/MorphSVGPlugin.min.js"></script>
 <script src="vendor/Physics2DPlugin.min.js"></script>
 <script src="vendor/lenis.min.js"></script>
-<script src="vendor/supabase.js"></script>
 <script src="js/config.js"></script>
 <script src="js/title-paths.js"></script>
 <script src="js/art.js"></script>
 <script src="js/app.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/gl.js"></script>
+<script src="js/loader.js"></script>
+<script src="js/pointer.js"></script>
 <script src="js/motion.js"></script>
 <script src="js/rsvp.js"></script>
 </body>

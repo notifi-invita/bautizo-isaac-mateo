@@ -1,6 +1,7 @@
 /* ============================================================
-   Contenido, polvo de luz, pétalos, música, reloj de paletas,
-   calendario y galería. La coreografía está en motion.js.
+   Contenido desde config.js, pétalos, sonido (música + efectos),
+   reloj de paletas, calendario y galería.
+   La coreografía está en motion.js.
    ============================================================ */
 (function () {
   "use strict";
@@ -14,12 +15,13 @@
   const LITE = reduce || (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 3;
   const UI = (window.UI = { reduce, LITE });
   if (LITE) document.documentElement.classList.add("lite");
-  document.body.classList.add("is-locked");
+  document.body.classList.add("is-locked", "is-loading");
 
   window.ART.fill();
 
   /* ---------- Textos desde config.js ---------- */
-  const fills = { baby: C.baby, initials: C.initials, invite: T.invite, verse: T.verse, verseRef: T.verseRef, gratitude: T.gratitude, closing: T.closing };
+  const fills = { baby: C.baby, initials: C.initials, invite: T.invite, verse: T.verse, verseRef: T.verseRef, gratitude: T.gratitude, closing: T.closing,
+    parentsOr: C.parents.join(" o a ") };
   $$("[data-fill]").forEach((el) => { if (fills[el.dataset.fill]) el.textContent = fills[el.dataset.fill]; });
   $$("[data-list]").forEach((el) => {
     el.textContent = "";
@@ -65,12 +67,21 @@
     el.appendChild(b);
   }
 
-  if (C.mainPhoto) {
+  // Foto principal: reemplaza al monograma (si hay WebGL, gl.js la usa como textura)
+  UI.photoReady = new Promise((resolve) => {
+    if (!C.mainPhoto) return resolve(null);
     const img = new Image();
     img.alt = `Foto de ${C.baby}`;
-    img.onload = () => { const p = $("#mainPhoto"); p.textContent = ""; p.appendChild(img); };
+    img.decoding = "async";
+    img.onload = () => {
+      const p = $("#mainPhoto"), mono = $(".monogram", p);
+      if (mono) mono.remove();
+      p.prepend(img);
+      resolve(img);
+    };
+    img.onerror = () => resolve(null);
     img.src = C.mainPhoto;
-  }
+  });
 
   /* ---------- Aviso ---------- */
   let toastT = 0;
@@ -149,27 +160,51 @@
   };
   UI.celebrate = () => UI.petalShower(70);
 
-  /* ---------- Música con entrada suave ---------- */
+  /* ---------- Sonido: música de fondo + efectos sutiles ---------- */
+  // Un solo interruptor controla ambos. Se decide al abrir: con sonido o en silencio.
   const bgm = $("#bgm"), musicBtn = $("#musicBtn");
-  let musicOk = !!C.music;
-  const hideMusic = () => { musicOk = false; musicBtn.hidden = true; $("#musicHint").hidden = true; };
-  if (musicOk) { bgm.addEventListener("error", hideMusic); bgm.src = C.music; } else hideMusic();
-  bgm.addEventListener("play", () => musicBtn.classList.add("playing"));
-  bgm.addEventListener("pause", () => musicBtn.classList.remove("playing"));
-  const fadeTo = (v, d, done) => window.gsap ? gsap.to(bgm, { volume: v, duration: d, overwrite: true, onComplete: done }) : ((bgm.volume = v), done && done());
-  UI.startMusic = function () {
-    if (!musicOk) return;
-    bgm.volume = 0;
-    bgm.play().then(() => fadeTo(0.55, 2.5)).catch(() => {});
+  let musicOk = !!C.music, gain = null, fadeT = 0;
+  UI.sound = false;
+  const noMusic = () => { musicOk = false; $("#musicHint").hidden = true; };
+  if (musicOk) { bgm.addEventListener("error", noMusic); bgm.src = C.music; } else noMusic();
+  // Fundido: con Web Audio si existe (así funciona también en iPhone); si no, con el volumen del <audio>
+  function fadeTo(v, d, done) {
+    clearTimeout(fadeT);
+    if (gain) {
+      const g = gain.gain, t = SFX.now();
+      g.cancelScheduledValues(t);
+      g.setValueAtTime(g.value, t);
+      g.linearRampToValueAtTime(v, t + d);
+      if (done) fadeT = setTimeout(done, d * 1000);
+    } else if (window.gsap) gsap.to(bgm, { volume: v, duration: d, overwrite: true, onComplete: done });
+    else { bgm.volume = v; if (done) done(); }
+  }
+  function paintBtn() {
+    musicBtn.classList.toggle("playing", UI.sound);
+    musicBtn.setAttribute("aria-pressed", String(UI.sound));
+  }
+  UI.setSound = function (on, fade) {
+    UI.sound = on;
+    if (window.SFX) on ? SFX.enable() : SFX.disable();
+    if (musicOk) {
+      if (on) {
+        if (!gain && window.SFX && SFX.connectMedia) { gain = SFX.connectMedia(bgm); if (gain) bgm.volume = 1; }
+        if (!gain) bgm.volume = 0;
+        bgm.play()
+          .then(() => { if (UI.sound) fadeTo(0.55, fade || 1.2); else bgm.pause(); })
+          .catch((e) => {
+            // El navegador bloqueó el audio: el botón queda en "apagado" para no mentir
+            if (e && e.name === "NotAllowedError") { UI.sound = false; if (window.SFX) SFX.disable(); paintBtn(); }
+          });
+      } else if (!bgm.paused) fadeTo(0, 0.6, () => { if (!UI.sound) bgm.pause(); });
+    }
+    paintBtn();
   };
-  musicBtn.addEventListener("click", () => {
-    if (!musicOk) return;
-    if (bgm.paused) { bgm.volume = 0; bgm.play().then(() => fadeTo(0.55, 1.2)).catch(() => {}); }
-    else fadeTo(0, 0.6, () => bgm.pause());
-  });
+  musicBtn.addEventListener("click", () => UI.setSound(!UI.sound));
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden && !bgm.paused) { bgm.pause(); bgm.dataset.auto = "1"; }
-    else if (!document.hidden && bgm.dataset.auto === "1") { bgm.dataset.auto = ""; bgm.play().catch(() => {}); }
+    if (!UI.sound || !musicOk) return;
+    if (document.hidden) bgm.pause();
+    else bgm.play().catch(() => {});
   });
 
   /* ---------- Reloj de paletas ---------- */
@@ -190,16 +225,26 @@
     gsap.fromTo(f.leaf, { rotationX: 0 }, { rotationX: -180, duration: 0.65, ease: "power2.inOut", overwrite: true,
       onComplete() { f.bottom.textContent = v; f.front.textContent = v; gsap.set(f.leaf, { rotationX: 0 }); } });
   }
+  const clock = $("#flipclock"), done = $("#cdDone");
+  const dayKey = (d) => fmt(d, { year: "numeric", month: "2-digit", day: "2-digit" });
+  let clockTimer = 0;
   function tickClock() {
     let diff = Math.max(0, ceremony - Date.now());
+    if (diff === 0) {
+      clock.hidden = true;
+      done.hidden = false;
+      done.textContent = dayKey(new Date()) === dayKey(ceremony) ? "¡Hoy es el gran día!" : "Gracias por acompañarnos";
+      clearInterval(clockTimer);
+      return;
+    }
     const d = Math.floor(diff / 864e5); diff -= d * 864e5;
     const h = Math.floor(diff / 36e5); diff -= h * 36e5;
     const m = Math.floor(diff / 6e4); diff -= m * 6e4;
     const vals = { d, h, m, s: Math.floor(diff / 1e3) };
     flips.forEach((f) => setFlip(f, String(vals[f.u]).padStart(2, "0")));
   }
+  clockTimer = setInterval(tickClock, 1000);
   tickClock();
-  setInterval(tickClock, 1000);
 
   /* ---------- Calendario ---------- */
   const ymd = E.date.replace(/-/g, "");
@@ -216,10 +261,11 @@
       `DTSTART;TZID=${TZ}:${ymd}T${hhmm(E.ceremonyTime, 0)}`, `DTEND;TZID=${TZ}:${ymd}T${hhmm(E.receptionTime, 4)}`,
       `SUMMARY:${esc("Bautizo de " + C.baby)}`, `LOCATION:${esc(E.ceremonyPlace + ", " + E.ceremonyCity)}`, `DESCRIPTION:${esc(details)}`,
       "END:VEVENT", "END:VCALENDAR"].join("\r\n");
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
+    const a = document.createElement("a"), url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
+    a.href = url;
     a.download = "bautizo-isaac-mateo.ics";
     document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
     UI.toast("Abre el archivo descargado para guardar el evento en tu calendario.");
   });
 
@@ -233,9 +279,11 @@
       const img = document.createElement("img");
       img.src = src; img.alt = `Foto ${i + 1} de ${C.baby}`; img.loading = "lazy";
       b.appendChild(img);
-      b.addEventListener("click", () => { $("img", lb).src = src; lb.hidden = false; });
+      b.addEventListener("click", () => { $("img", lb).src = src; lb.hidden = false; lb._from = b; $("button", lb).focus(); });
       gal.appendChild(b);
     });
-    lb.addEventListener("click", () => (lb.hidden = true));
+    const closeLb = () => { lb.hidden = true; if (lb._from) lb._from.focus(); };
+    lb.addEventListener("click", closeLb);
+    addEventListener("keydown", (e) => { if (e.key === "Escape" && !lb.hidden) closeLb(); });
   }
 })();
