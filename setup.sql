@@ -1,7 +1,10 @@
 -- ============================================================
--- Confirmaciones del bautizo de Isaac Mateo
--- Supabase > SQL Editor > New query > pega todo > Run
--- Se puede ejecutar más de una vez sin problema.
+-- PASO 1 · Crear la tabla de confirmaciones y sus reglas
+-- Bautizo de Isaac Mateo
+--
+-- Supabase > SQL Editor > New query > pega TODO > Run
+-- Resultado esperado: "Success. No rows returned"
+-- Se puede ejecutar más de una vez sin problema (no borra datos).
 -- ============================================================
 
 create table if not exists public.rsvps (
@@ -31,7 +34,10 @@ alter table public.rsvps
 -- Seguridad: los invitados solo pueden enviar; solo el administrador con sesión puede leer y borrar
 alter table public.rsvps enable row level security;
 
-grant insert on public.rsvps to anon;
+-- Permisos explícitos (los proyectos nuevos de Supabase ya no los dan solos)
+grant usage on schema public to anon, authenticated;
+revoke all on public.rsvps from anon, authenticated;
+grant insert (first_name, last_name, attending, guests, message) on public.rsvps to anon;
 grant select, delete on public.rsvps to authenticated;
 
 drop policy if exists "invitados pueden enviar" on public.rsvps;

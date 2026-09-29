@@ -18,6 +18,7 @@ Invitación web animada con confirmación de asistencia. Las respuestas se guard
 | `img/` | Acuarelas pre-renderizadas, portada para WhatsApp (`og.jpg`) y tus fotos |
 | `vendor/` | GSAP 3.15 con sus plugins, Lenis y Supabase (incluidos para no depender de otros servidores) |
 | `setup.sql` | Crea la tabla y las reglas de seguridad en Supabase |
+| `sql/` | Verificación de seguridad y consultas útiles para Supabase |
 
 ## 1 · Activar GitHub Pages (una sola vez)
 
@@ -28,11 +29,13 @@ En uno o dos minutos la invitación queda en el enlace de arriba.
 
 1. Crea un proyecto en https://supabase.com (región sugerida: São Paulo).
 2. **SQL Editor → New query** → pega todo `setup.sql` → **Run**.
-3. **Project Settings → API**: copia **Project URL** y **anon public key** en `js/config.js` (`SUPABASE_URL` y `SUPABASE_ANON_KEY`).
-4. **Authentication → Users → Add user**: tu correo y contraseña, marca **Auto Confirm User**.
-5. **Authentication → Sign In / Providers**: desactiva **Allow new users to sign up**.
+3. Para comprobar: pega `sql/verificar.sql` → **Run**. Debe salir `invitado_puede_leer` e `invitado_puede_borrar` en `false`, lo demás en `true` y `reglas = 3`.
+4. Botón **Connect** (arriba) o **Project Settings → API Keys**: copia **Project URL** y la **Publishable key** (`sb_publishable_…`; la antigua *anon* también sirve) en `js/config.js` (`SUPABASE_URL` y `SUPABASE_ANON_KEY`). Nunca uses la *secret key*.
+5. **Authentication → Users → Add user → Create new user**: tu correo y contraseña, marca **Auto Confirm User**.
+6. **Authentication → Sign In / Providers**: desactiva **Allow new users to sign up**.
+7. Opcional: `sql/consultas.sql` tiene consultas para ver respuestas y totales directo en Supabase.
 
-La clave *anon* es pública por diseño; la seguridad la dan las reglas de `setup.sql` (los invitados solo pueden enviar, nunca leer).
+La clave publishable/*anon* es pública por diseño; la seguridad la dan las reglas de `setup.sql` (los invitados solo pueden enviar, nunca leer).
 
 ## 3 · Foto y música
 

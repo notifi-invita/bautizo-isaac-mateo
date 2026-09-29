@@ -4,6 +4,8 @@
    ============================================================ */
 window.CONFIG = {
   // ---- Supabase (ver README.md, paso 2) ----
+  // URL: https://xxxxx.supabase.co · Clave: la "Publishable key" (sb_publishable_…) o la antigua "anon".
+  // Nunca pongas aquí la "secret key" ni la "service_role".
   SUPABASE_URL: "TU_SUPABASE_URL",
   SUPABASE_ANON_KEY: "TU_SUPABASE_ANON_KEY",
 
