@@ -13,9 +13,9 @@ Invitación web animada con confirmación de asistencia. Las respuestas se guard
 | `js/config.js` | **Aquí cambias textos, fechas, foto, música y claves** |
 | `js/app.js`, `js/motion.js`, `js/rsvp.js`, `js/art.js` | Contenido, animaciones (GSAP), confirmación e ilustraciones |
 | `js/loader.js`, `js/sound.js`, `js/gl.js`, `js/pointer.js` | Pantalla de carga, efectos de sonido, WebGL (foto y luces) y detalles de mouse |
-| `tools/` | Scripts para volver a generar las acuarelas y el título (no se cargan en la página) |
+| `tools/` | Scripts para volver a generar el título caligráfico (no se cargan en la página) |
 | `css/` y `fonts/` | Estilos y tipografías (alojadas en el sitio) |
-| `img/` | Acuarelas pre-renderizadas, portada para WhatsApp (`og.jpg`) y tus fotos |
+| `img/` | Acuarelas (ramo de esquina, corona, osito, ramita y palomas en 4 cuadros), portada para WhatsApp (`og.jpg`) y tus fotos |
 | `vendor/` | GSAP 3.15 con sus plugins, Lenis y Supabase (incluidos para no depender de otros servidores) |
 | `setup.sql` | Crea la tabla y las reglas de seguridad en Supabase |
 | `sql/` | Verificación de seguridad y consultas útiles para Supabase |
@@ -61,11 +61,11 @@ https://notifi-invita.github.io/bautizo-isaac-mateo/?para=Familia%20Pérez
 
 ## Animaciones
 
-Hechas con GSAP 3.15 (MorphSVG, Physics2D, DrawSVG, SplitText, ScrollTrigger), Lenis para el scroll suave en computadora y WebGL propio (sin librerías) para la foto y las luces.
+Hechas con GSAP 3.15 (Physics2D, DrawSVG, SplitText, MotionPath, ScrollTrigger), Lenis para el scroll suave en computadora y WebGL propio (sin librerías) para la foto y las luces.
 
 - **Carga:** el monograma «IM» se dibuja al ritmo de lo que realmente falta por cargar (fuentes, acuarelas, foto). Al terminar aparece el sobre con dos opciones: tocar el sello (con música) o «Abrir sin música».
 - **Apertura:** el sello se agrieta y se parte en dos con gravedad real, la solapa se abre en 3D, la carta sale, el sobre baja y se desvanece, la carta viaja al centro y un destello cálido revela la tarjeta.
-- **Tarjeta:** las flores aparecen por capas desde las esquinas, los marcos dorados se dibujan, la foto aparece con un revelado líquido de borde dorado (WebGL), la corona gira suavemente hasta su lugar, las palomas llegan volando con aleteo real (las alas cambian de forma) y se posan, y «Bautizo» se escribe a mano letra por letra.
+- **Tarjeta:** las flores aparecen por capas desde las esquinas, los marcos dorados se dibujan, la foto aparece con un revelado líquido de borde dorado (WebGL), la corona gira suavemente hasta su lugar, las palomas en acuarela llegan volando con aleteo cuadro a cuadro y se posan, y «Bautizo» se escribe a mano letra por letra.
 - **Al bajar:** cada sección se revela en orden con la misma familia de curvas; el reloj de paletas cuenta en vivo.
 - **Al confirmar:** «Gracias» se escribe a mano, se sueltan palomas y cae una lluvia suave de pétalos.
 - **Oro vivo:** el dorado brilla según la inclinación del celular o el movimiento del mouse.
@@ -73,7 +73,7 @@ Hechas con GSAP 3.15 (MorphSVG, Physics2D, DrawSVG, SplitText, ScrollTrigger), L
 - **Sonidos sutiles:** crujido del lacre, papel, destello, aleteo y un arpegio al confirmar. Se generan en el navegador (no se descarga nada) y el botón de música los apaga también.
 - **En computadora:** cursor propio (dice «Abrir» sobre el sello), botones magnéticos cuyo relleno nace desde el mouse, texto que rueda a cursiva y la foto ondula como agua al pasar encima.
 
-**Rendimiento:** solo se animan propiedades que la tarjeta gráfica mueve sin esfuerzo (posición, escala, opacidad); las acuarelas, la corona y el osito van pre-renderizados. En celulares modestos se activa un modo ligero automático (sin WebGL ni luces), y quien tenga activado «reducir movimiento» ve todo sin animaciones. Para probar sin WebGL agrega `?gl=0` al enlace.
+**Rendimiento:** solo se animan propiedades que la tarjeta gráfica mueve sin esfuerzo (posición, escala, opacidad); las acuarelas van optimizadas en WebP con transparencia. En celulares modestos se activa un modo ligero automático (sin WebGL ni luces), y quien tenga activado «reducir movimiento» ve todo sin animaciones. Para probar sin WebGL agrega `?gl=0` al enlace.
 
 **Anti-spam:** el formulario tiene un campo invisible y descarta envíos hechos en menos de 3 segundos.
 

@@ -57,7 +57,10 @@ button{font:inherit;color:inherit}
 .leaf-fall{position:absolute;top:-40px;left:0;width:var(--sz);will-change:transform}
 .leaf-fall svg{display:block;width:100%;height:auto;opacity:.72}
 #flyLayer{position:fixed;inset:0;z-index:65;pointer-events:none;overflow:hidden}
-.fly-dove{position:absolute;left:0;top:0;width:var(--w,90px);will-change:transform}
+.fly-dove{position:absolute;left:0;top:0;width:var(--w,70px);will-change:transform}
+/* Paloma en acuarela: se ve un cuadro de 4 (la imagen se desplaza de a 25%) */
+.pd{position:relative;width:100%;aspect-ratio:474/650;overflow:hidden}
+.pd img{position:absolute;left:0;top:0;width:400%;max-width:none;height:100%;will-change:transform;-webkit-user-drag:none;user-select:none}
 
 /* ================= SOBRE DE ENTRADA ================= */
 .intro{position:fixed;inset:0;z-index:100;touch-action:none;overscroll-behavior:contain;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,4vh,34px);padding:24px 16px;text-align:center;overflow:hidden;
@@ -85,7 +88,7 @@ button{font:inherit;color:inherit}
 .env-back{position:absolute;inset:0;border-radius:6px;background:radial-gradient(120% 90% at 50% 20%,#e9efea,#d0dbd3);box-shadow:0 34px 60px -26px rgba(60,80,65,.55),0 2px 0 rgba(255,255,255,.6) inset}
 .env-letter{position:absolute;left:6%;right:6%;top:6%;height:90%;z-index:1;border-radius:3px;background:var(--card);border:1px solid var(--line);box-shadow:0 2px 12px rgba(80,60,30,.12);transform-origin:50% 50%;will-change:transform}
 .env-letter-inner{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;padding:7% 8% 0}
-.env-sprig{width:52%}
+.env-sprig{width:60%}
 .env-title{width:74%;margin-top:2%}
 .env-name{font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-soft)}
 .env-front{position:absolute;inset:0;z-index:2;transform:translateZ(2px);border-radius:6px;background:linear-gradient(160deg,#e3eae4 0%,#cfdad2 60%,#c3d0c7 100%);clip-path:polygon(0 0,50% 55%,100% 0,100% 100%,0 100%)}
@@ -133,7 +136,7 @@ main{position:relative;z-index:2}
   box-shadow:0 40px 90px -40px rgba(90,70,40,.45),0 0 0 1px rgba(195,154,92,.16)}
 
 /* Flores de las esquinas en 3 capas con profundidad */
-.floral{position:absolute;z-index:-1;width:clamp(180px,52%,320px);aspect-ratio:1;pointer-events:none}
+.floral{position:absolute;z-index:-1;width:clamp(190px,56%,340px);aspect-ratio:1;pointer-events:none}
 .floral.tl{top:-12px;left:-16px}
 .floral.br{bottom:-12px;right:-16px;rotate:180deg}
 .floral .lay{position:absolute;inset:0;width:100%;height:100%;transform-origin:0 0;will-change:transform}
@@ -155,7 +158,8 @@ main{position:relative;z-index:2}
 /* Retrato: rayos de luz, corona, palomas, foto y osito */
 .portrait{position:relative;width:min(440px,100%);aspect-ratio:430/280;margin:0 auto;display:grid;place-items:center}
 .glow{position:absolute;left:50%;top:50%;width:96%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(247,229,184,.8) 0%,rgba(247,229,184,.28) 38%,rgba(247,229,184,0) 66%)}
-.wreath{position:absolute;inset:0;z-index:1;width:100%;height:100%;will-change:transform}
+/* Corona de acuarela centrada en la foto (un poco más grande que el aro dorado) */
+.wreath{position:absolute;left:50%;top:50%;z-index:1;width:74%;height:auto;aspect-ratio:1;translate:-50% -50%;will-change:transform}
 .photo-ring{position:relative;z-index:2;width:52%;aspect-ratio:1;padding:3%;border-radius:50%}
 .photo-ring::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:50%;background:radial-gradient(circle at var(--lx) var(--ly),rgba(255,247,224,.95) 0%,rgba(255,247,224,0) 36%),conic-gradient(from 20deg,#e9cf98,#b0824a,#f5e6c4,#c39a5c,#8f6534,#efd9a8,#e9cf98);box-shadow:0 14px 30px -12px rgba(120,85,40,.6)}
 .photo-ring::after{content:"";position:absolute;inset:-5.5%;border:1.5px solid var(--gold-2);border-radius:50%;opacity:.85}
@@ -166,12 +170,11 @@ main{position:relative;z-index:2}
 .photo canvas{position:absolute;inset:0;z-index:1;width:100%;height:100%;display:block}
 .photo.gl-on > :not(canvas){opacity:0}
 .monogram{padding-top:.1em;font-family:var(--script);font-size:clamp(3rem,13vw,5.4rem);line-height:1;color:var(--gold-3)}
-.dove.perch{position:absolute;z-index:3;top:24%;width:31%}
-.dove.perch.left{left:-5%}
-.dove.perch.right{right:-5%;scale:-1 1}
-.dove-in{will-change:transform;filter:drop-shadow(0 6px 7px rgba(96,74,44,.2))}
-.fly-dove svg{display:block;width:100%;height:auto;filter:drop-shadow(0 8px 10px rgba(96,74,44,.22))}
-.bear{position:absolute;z-index:4;right:15%;bottom:-4%;width:24%;height:auto;transform-origin:50% 100%}
+.dove.perch{position:absolute;z-index:3;top:5%;width:22%}
+.dove.perch.left{left:1%}
+.dove.perch.right{right:1%;scale:-1 1}
+.dove-in{will-change:transform}
+.bear{position:absolute;z-index:4;right:14%;bottom:-8%;width:23%;height:auto;transform-origin:50% 100%}
 
 /* Título escrito a mano y cinta */
 .title{position:relative;z-index:1;width:min(520px,94%);margin:clamp(4px,2vw,12px) auto 0;font-weight:400}
@@ -215,8 +218,8 @@ main{position:relative;z-index:2}
 .wrap{max-width:620px;margin:0 auto}
 .wrap.wide{max-width:900px}
 .sec-title{font-family:var(--script);font-weight:400;font-size:clamp(2.9rem,11.5vw,4.4rem);line-height:1.15;text-align:center;color:#a77a42;text-wrap:balance}
-.sprig{width:min(220px,70%);margin:0 auto 14px}
-.sprig svg{overflow:visible}
+.sprig{width:min(240px,72%);margin:0 auto 14px}
+.sprig-img{display:block;width:100%;height:auto}
 .verse{font-family:var(--serif);font-style:italic;font-size:clamp(1.35rem,5.2vw,1.85rem);line-height:1.45;text-align:center;text-wrap:balance}
 .verse-ref{margin-top:10px;text-align:center;font-size:.8rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-4)}
 .lead{max-width:32em;margin:26px auto 0;text-align:center;font-size:clamp(1.05rem,3.8vw,1.18rem);line-height:1.75;text-wrap:pretty}

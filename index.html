@@ -19,7 +19,7 @@
 <link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="preload" href="fonts/pinyon-script.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="img/corner-a-front.webp" as="image">
+<link rel="preload" href="img/corner.webp" as="image">
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/styles.css">
 <noscript><style>#intro{display:none}body.is-locked{overflow:auto;height:auto}body.is-loading main{visibility:visible}</style></noscript>
@@ -84,16 +84,8 @@
   <!-- ================= TARJETA PRINCIPAL ================= -->
   <section class="hero" id="inicio">
     <article class="invite" id="invite">
-      <div class="floral tl" aria-hidden="true">
-        <img class="lay back" src="img/corner-a-back.webp" alt="" width="640" height="640">
-        <img class="lay mid" src="img/corner-a-mid.webp" alt="" width="640" height="640">
-        <img class="lay front" src="img/corner-a-front.webp" alt="" width="640" height="640">
-      </div>
-      <div class="floral br" aria-hidden="true">
-        <img class="lay back" src="img/corner-b-back.webp" alt="" width="640" height="640">
-        <img class="lay mid" src="img/corner-b-mid.webp" alt="" width="640" height="640">
-        <img class="lay front" src="img/corner-b-front.webp" alt="" width="640" height="640">
-      </div>
+      <div class="floral tl" aria-hidden="true"><img class="lay front" src="img/corner.webp" alt="" width="760" height="760"></div>
+      <div class="floral br" aria-hidden="true"><img class="lay front" src="img/corner.webp" alt="" width="760" height="760"></div>
       <div class="frame tr" data-art="frame"></div>
       <div class="frame bl" data-art="frame"></div>
       <div class="splat sp1" data-art="splat" data-seed="21"></div>
@@ -102,11 +94,11 @@
 
       <div class="portrait" id="portrait">
         <div class="glow" aria-hidden="true"></div>
-        <img class="wreath" src="img/wreath.webp" alt="" width="860" height="560" aria-hidden="true">
+        <img class="wreath" src="img/wreath.webp" alt="" width="820" height="820" aria-hidden="true">
         <div class="dove perch left"><div class="dove-in" data-art="dove"></div></div>
         <div class="dove perch right"><div class="dove-in" data-art="dove"></div></div>
         <div class="photo-ring" id="photoRing"><div class="photo" id="mainPhoto"><span class="monogram" data-fill="initials">IM</span></div></div>
-        <img class="bear" src="img/bear.webp" alt="" width="360" height="394" aria-hidden="true">
+        <img class="bear" src="img/bear.webp" alt="" width="576" height="685" aria-hidden="true">
       </div>
 
       <h1 class="title">
@@ -274,7 +266,6 @@
 <script src="vendor/DrawSVGPlugin.min.js"></script>
 <script src="vendor/SplitText.min.js"></script>
 <script src="vendor/CustomEase.min.js"></script>
-<script src="vendor/MorphSVGPlugin.min.js"></script>
 <script src="vendor/Physics2DPlugin.min.js"></script>
 <script src="vendor/lenis.min.js"></script>
 <script src="js/config.js"></script>

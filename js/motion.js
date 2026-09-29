@@ -75,7 +75,7 @@
     return;
   }
 
-  gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin, SplitText, CustomEase, MorphSVGPlugin, Physics2DPlugin);
+  gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin, SplitText, CustomEase, Physics2DPlugin);
   gsap.config({ force3D: true });
   CustomEase.create("out", "0.16,1,0.3,1");     // salida larga y suave (entradas)
   CustomEase.create("inOut", "0.76,0,0.24,1");  // transiciones de estado
@@ -246,22 +246,18 @@
       .set(intro, { display: "none" });
   }
 
-  /* ================= PALOMAS: ALETEO REAL CON MORPHSVG ================= */
-  // Un ciclo de aleteo: arriba → medio → abajo → medio → arriba (las alas cambian de forma)
+  /* ================= PALOMAS: ALETEO CUADRO A CUADRO (ACUARELA) ================= */
+  // Un ciclo: alas arriba → medio → abajo → medio. Cada cuadro dura "s" segundos.
+  // La imagen tiene 4 cuadros en fila; se muestra uno moviéndola de a 25% (solo transform).
+  const frame = (img, k) => gsap.set(img, { xPercent: -25 * k });
   function flapCycle(root, s) {
-    const W = window.ART.WING;
-    const wings = $$(".w-near, .w-far", root), covs = $$(".c-near, .c-far", root);
-    return gsap.timeline({ paused: true, repeat: -1, defaults: { ease: "sine.inOut" } })
-      .to(wings, { morphSVG: W.mid, duration: s }, 0).to(covs, { morphSVG: W.cMid, duration: s }, 0)
-      .to(wings, { morphSVG: W.down, duration: s }, s).to(covs, { morphSVG: W.cDown, duration: s }, s)
-      .to(wings, { morphSVG: W.mid, duration: s * 0.9 }, s * 2).to(covs, { morphSVG: W.cMid, duration: s * 0.9 }, s * 2)
-      .to(wings, { morphSVG: W.up, duration: s * 0.9 }, s * 2.9).to(covs, { morphSVG: W.cUp, duration: s * 0.9 }, s * 2.9);
+    const img = $(".pd img", root);
+    const tl = gsap.timeline({ paused: true, repeat: -1 });
+    [0, 1, 2, 1].forEach((k, i) => tl.set(img, { xPercent: -25 * k }, i * s));
+    return tl.set({}, {}, 4 * s); // largo del ciclo
   }
-  function foldWings(root, d) {
-    const W = window.ART.WING;
-    gsap.to($$(".w-near, .w-far", root), { morphSVG: W.up, duration: d, ease: "soft" });
-    gsap.to($$(".c-near, .c-far", root), { morphSVG: W.cUp, duration: d, ease: "soft" });
-  }
+  // Posada: alas recogidas
+  function foldWings(root) { frame($(".pd img", root), 3); }
 
   /* ================= ESCRITURA A MANO ================= */
   // Cada letra se revela dibujando su máscara; la duración depende del largo del trazo
@@ -495,7 +491,7 @@
     const r = from.getBoundingClientRect(), layer = $("#flyLayer");
     sfx("flutter", 12);
     for (let i = 0; i < n; i++) {
-      const w = rand(70, 120), d = document.createElement("div");
+      const w = rand(46, 78), d = document.createElement("div");
       d.className = "fly-dove";
       d.style.setProperty("--w", w.toFixed(0) + "px");
       d.innerHTML = window.ART.dove();

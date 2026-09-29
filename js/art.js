@@ -1,9 +1,8 @@
 /* ============================================================
-   Ilustraciones SVG de la invitación: palomas (con 3 poses de ala
-   para MorphSVG), cinta, marcos, destellos, cruz, iconos, ramitas
+   Ilustraciones de la invitación. Pintadas en acuarela (img/):
+   flores de esquina, corona, osito, ramita y palomas (4 cuadros).
+   Hechas con código (SVG): cinta, marcos, destellos, cruz, iconos
    y la letra cursiva que se escribe a mano.
-   Las flores de las esquinas, la corona y el osito van
-   pre-renderizados en img/ (ver tools/art-build.js).
    ============================================================ */
 (function () {
   "use strict";
@@ -82,29 +81,10 @@ ${lg("gRoseDark", "#b87c52", "#8e5a37", 'x1="0" y1="0" x2="1" y2="1"')}
   }
 
 
-  /* ---------- Paloma estilizada con 3 poses de ala (para MorphSVG) ---------- */
-  // Mira a la derecha. El ala cercana y el ala lejana cambian de forma entre
-  // arriba → medio → abajo para un aleteo real (no un simple aplastado).
-  ART.WING = {
-    up:   "M132 68C136 46 126 22 104 6C101 16 96 22 88 24C90 31 87 37 79 40C83 47 80 53 73 56C80 62 86 68 98 72C110 76 124 74 132 68Z",
-    mid:  "M132 68C122 52 100 42 60 40C66 46 68 50 64 54C71 56 74 59 70 63C78 64 82 67 80 71C86 73 92 75 98 76C112 78 126 75 132 68Z",
-    down: "M132 68C130 86 118 106 96 120C97 110 95 105 90 102C94 96 93 91 88 88C93 84 94 80 92 77C96 76 98 75 100 74C112 76 126 74 132 68Z",
-    cUp:  "M132 68C132 56 124 44 112 36C110 44 104 50 98 54C100 60 100 66 104 70C114 72 126 72 132 68Z",
-    cMid: "M132 68C126 60 114 54 98 52C100 58 98 62 94 64C98 68 100 71 104 73C114 75 126 73 132 68Z",
-    cDown:"M132 68C132 78 126 88 116 94C112 88 108 86 104 86C104 80 104 77 104 74C114 75 126 73 132 68Z"
-  };
-  ART.dove = function () {
-    const W = ART.WING, st = 'stroke="#cdbd9f" stroke-width="1" stroke-linejoin="round"', cst = 'stroke="#e2d6c0" stroke-width=".8" stroke-linejoin="round"';
-    return `<svg viewBox="0 -18 200 160" aria-hidden="true" class="dove-svg">
-<g transform="translate(-9 -5) translate(132 68) scale(1.22) translate(-132 -68)"><path class="w-far" d="${W.up}" fill="url(#lgWingFar)" ${st}/><path class="c-far" d="${W.cUp}" fill="#efe8dc" ${cst}/></g>
-<path d="M168 56C166 48 158 44 150 47C143 50 140 57 132 61C114 69 88 72 62 76L28 70C22 69 20 75 25 78C19 80 19 87 26 87C22 91 26 97 32 94L62 88C80 99 112 101 134 93C150 88 162 78 168 64Z" fill="url(#lgDove)" ${st}/>
-<path d="M36 78L60 80M34 86L60 84" stroke="#e2d6c0" stroke-width="1" fill="none" stroke-linecap="round"/>
-<path d="M167 55L181 60L167 64Z" fill="#d6ae6c"/>
-<circle cx="159" cy="55" r="2.1" fill="#3d3530"/><circle cx="159.7" cy="54.3" r=".7" fill="#fff"/>
-<g transform="translate(132 68) scale(1.22) translate(-132 -68)"><path class="w-near" d="${W.up}" fill="url(#lgWing)" ${st}/><path class="c-near" d="${W.cUp}" fill="#f8f3ea" ${cst}/></g>
-</svg>`;
-  };
-
+  /* ---------- Paloma en acuarela: 4 cuadros en una sola imagen ---------- */
+  // Cuadros: 0 alas arriba · 1 alas al medio · 2 alas abajo · 3 posada.
+  // Se muestra un cuadro moviendo la imagen (motion.js hace el aleteo).
+  ART.dove = () => `<div class="pd"><img src="img/doves.webp" alt="" width="1896" height="650" draggable="false"></div>`;
 
   /* ---------- Cinta de oro rosa ---------- */
   ART.ribbon = () => `<svg viewBox="0 0 470 110" aria-hidden="true">
@@ -145,13 +125,7 @@ ${lg("gRoseDark", "#b87c52", "#8e5a37", 'x1="0" y1="0" x2="1" y2="1"')}
 <path d="M28 6H32V30H54V34H32V94H28V34H6V30H28Z" fill="url(#gGoldSoft)" opacity=".7"/>
 </svg>`;
 
-  ART.sprig = function () {
-    const rnd = seeded(5);
-    let s = `<svg viewBox="0 0 220 44" aria-hidden="true"><g filter="url(#wc)">`;
-    s += branch({ x0: 110, y0: 24, cx: 60, cy: 14, x1: 6, y1: 28, n: 8, len: 16, wid: 6.5, kind: "round" }, rnd);
-    s += branch({ x0: 110, y0: 24, cx: 160, cy: 14, x1: 214, y1: 28, n: 8, len: 16, wid: 6.5, kind: "round" }, rnd);
-    return s + `</g><path class="sprig-star" d="${STAR}" transform="translate(101 12) scale(.45)" fill="url(#gGold)"/></svg>`;
-  };
+  ART.sprig = () => `<img class="sprig-img" src="img/sprig.webp" alt="" width="900" height="193" draggable="false">`;
 
   ART.church = () => `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 <path class="draw" d="M32 4v10M27.5 8.5h9"/><path class="draw" d="M32 14L18 28v28h28V28z"/><path class="draw" d="M26 56V45a6 6 0 0 1 12 0v11"/>

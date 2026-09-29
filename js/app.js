@@ -21,6 +21,12 @@
   document.body.classList.add("is-locked", "is-loading");
 
   window.ART.fill();
+  // Palomas posadas: se muestra el 4.º cuadro (alas recogidas). Con GSAP para que luego
+  // el aleteo (xPercent) parta de este mismo valor.
+  document.querySelectorAll(".pd img").forEach((img) => {
+    if (window.gsap) gsap.set(img, { xPercent: -75 });
+    else img.style.transform = "translateX(-75%)";
+  });
 
   /* ---------- Textos desde config.js ---------- */
   const fills = { baby: C.baby, initials: C.initials, invite: T.invite, verse: T.verse, verseRef: T.verseRef, gratitude: T.gratitude, closing: T.closing,
