@@ -204,15 +204,17 @@
         <p class="deadline" id="deadlineTxt"></p>
 
         <form id="rsvpForm" novalidate>
+          <p class="choice-q">¿Nos acompañarás?</p>
           <div class="choice" role="radiogroup" aria-label="¿Nos acompañarás?">
-            <label class="chip"><input type="radio" name="att" value="yes" checked><span><b>Con gusto asistiré</b><small>¡Ahí estaré!</small></span></label>
+            <label class="chip"><input type="radio" name="att" value="yes"><span><b>Con gusto asistiré</b><small>¡Ahí estaré!</small></span></label>
             <label class="chip"><input type="radio" name="att" value="no"><span><b>No podré asistir</b><small>Enviaré mis buenos deseos</small></span></label>
           </div>
+          <p class="choice-err" id="choiceErr" hidden>Elige una de las dos opciones.</p>
           <div class="row2">
             <div class="field"><input id="fName" type="text" placeholder=" " autocomplete="given-name" maxlength="60" required><label for="fName">Nombre</label></div>
             <div class="field"><input id="fLast" type="text" placeholder=" " autocomplete="family-name" maxlength="60" required><label for="fLast">Apellido</label></div>
           </div>
-          <div class="collapse" id="yesBox"><div>
+          <div class="collapse closed" id="yesBox"><div>
             <div class="guests">
               <span class="guests-label">¿Cuántos acompañantes vienen contigo?</span>
               <div class="stepper">

@@ -424,3 +424,7 @@ html.has-cursor input,html.has-cursor textarea{cursor:text}
 @media (max-width:360px){
   .meal-opt span{gap:6px;padding:8px 6px;font-size:.86rem}
 }
+
+/* Pregunta de asistencia (nada viene marcado: el plato aparece solo al aceptar) */
+.choice-q{margin-bottom:10px;font-family:var(--serif);font-size:1.12rem;text-align:center;color:var(--ink)}
+.choice-err{margin:-12px 0 16px;font-size:.85rem;text-align:center;color:#a4503a}

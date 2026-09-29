@@ -124,22 +124,25 @@
   $("#gMinus").addEventListener("click", () => setGuests(guests - 1));
 
   /* ---------- Asistiré / No podré ---------- */
+  // yes: true (asistirá) · false (no podrá) · null (aún no elige: ninguna sección abierta).
+  // Acompañantes y plato del almuerzo solo aparecen después de «Con gusto asistiré».
   function setMode(yes) {
-    yesBox.classList.toggle("closed", !yes);
-    noBox.classList.toggle("closed", yes);
-    yesBox.inert = !yes;
-    noBox.inert = yes;
-    msgLabel.textContent = yes ? `Un mensaje para ${C.baby} (opcional)` : "Tu mensaje para la familia";
-    if (!yes) {
+    yesBox.classList.toggle("closed", yes !== true);
+    noBox.classList.toggle("closed", yes !== false);
+    yesBox.inert = yes !== true;
+    noBox.inert = yes !== false;
+    msgLabel.textContent = yes === false ? "Tu mensaje para la familia" : `Un mensaje para ${C.baby} (opcional)`;
+    $("#choiceErr").hidden = true;
+    if (yes === false) {
       setGuests(0);
       if (!msg.value.trim()) msg.value = C.declineSuggestions[0];
-    } else if (C.declineSuggestions.includes(msg.value)) {
+    } else if (yes === true && C.declineSuggestions.includes(msg.value)) {
       msg.value = "";
     }
     markSuggestion();
   }
-  $$('input[name="att"]').forEach((r) => r.addEventListener("change", () => setMode(form.elements.att.value === "yes")));
-  setMode(true);
+  $$('input[name="att"]').forEach((r) => r.addEventListener("change", () => { errBox.textContent = ""; setMode(form.elements.att.value === "yes"); }));
+  setMode(null);
   gHint.textContent = "Solo tú";
   renderMeals();
 
@@ -227,7 +230,13 @@
     if (Date.now() > deadline) return showClosed();
 
     const first = clean($("#fName").value), last = clean($("#fLast").value);
-    const attending = form.elements.att.value === "yes";
+    const choice = form.elements.att.value, attending = choice === "yes";
+    if (!choice) {
+      errBox.textContent = "Por favor, indica si podrás acompañarnos.";
+      $("#choiceErr").hidden = false;
+      form.querySelector('input[name="att"]').focus();
+      return;
+    }
     const message = clean(msg.value).slice(0, 500);
     if (!nameOk(first)) return fail("#fName", "Escribe tu nombre (mínimo 2 letras).");
     if (!nameOk(last)) return fail("#fLast", "Escribe tu apellido (mínimo 2 letras).");
