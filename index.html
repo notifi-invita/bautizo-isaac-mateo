@@ -40,20 +40,24 @@
       </div>
       <div class="env-front"></div>
       <div class="env-flap" id="envFlap"><div class="flap-face outside"></div><div class="flap-face inside"></div></div>
-      <button class="seal" id="openBtn" type="button" aria-label="Abrir la invitación">
-        <span class="seal-face"><span class="seal-initials" data-fill="initials">IM</span></span>
-      </button>
-      <div class="seal-shards" id="sealShards" aria-hidden="true"></div>
+      <div class="seal" id="seal">
+        <div class="seal-glow" aria-hidden="true"></div>
+        <div class="seal-half l"><span class="seal-face"><span class="seal-initials" data-fill="initials">IM</span></span></div>
+        <div class="seal-half r"><span class="seal-face"><span class="seal-initials" data-fill="initials">IM</span></span></div>
+        <svg class="seal-crack" viewBox="0 0 100 100" aria-hidden="true"><path d="M52 0L47 18L55 36L46 55L54 74L48 100"/></svg>
+        <button class="seal-btn" id="openBtn" type="button" aria-label="Abrir la invitación"></button>
+        <div class="crumbs" id="crumbs" aria-hidden="true"></div>
+      </div>
     </div>
   </div>
   <p class="intro-hint"><span class="hint-dot" aria-hidden="true"></span>Toca el sello para abrir<span id="musicHint"> · con música</span></p>
+  <div class="bloom" id="bloom" aria-hidden="true"></div>
 </div>
+<script>/* Si tocan el sello antes de que cargue todo, se recuerda y se abre al estar listo */document.getElementById("openBtn").addEventListener("click",function(){window.__openRequested=true},{once:true});</script>
 
 <!-- ================= CAPAS DE FONDO ================= -->
 <div class="paper" aria-hidden="true"></div>
-<canvas id="dust" aria-hidden="true"></canvas>
 <div id="leaves" aria-hidden="true"></div>
-<div class="scroll-dove" id="scrollDove" aria-hidden="true"><div data-art="dove"></div></div>
 <div id="flyLayer" aria-hidden="true"></div>
 <canvas id="petals" aria-hidden="true"></canvas>
 
@@ -82,12 +86,12 @@
       <div class="sparkles" data-art="sparkles"></div>
 
       <div class="portrait" id="portrait">
-        <div class="rays" aria-hidden="true"></div>
-        <div class="wreath" data-art="wreath"></div>
+        <div class="glow" aria-hidden="true"></div>
+        <img class="wreath" src="img/wreath.webp" alt="" width="860" height="560" aria-hidden="true">
         <div class="dove perch left"><div class="dove-in" data-art="dove"></div></div>
         <div class="dove perch right"><div class="dove-in" data-art="dove"></div></div>
         <div class="photo-ring" id="photoRing"><div class="photo" id="mainPhoto"><span class="monogram" data-fill="initials">IM</span></div></div>
-        <div class="bear" data-art="bear"></div>
+        <img class="bear" src="img/bear.webp" alt="" width="360" height="394" aria-hidden="true">
       </div>
 
       <h1 class="title">
@@ -256,6 +260,9 @@
 <script src="vendor/DrawSVGPlugin.min.js"></script>
 <script src="vendor/SplitText.min.js"></script>
 <script src="vendor/CustomEase.min.js"></script>
+<script src="vendor/MorphSVGPlugin.min.js"></script>
+<script src="vendor/Physics2DPlugin.min.js"></script>
+<script src="vendor/lenis.min.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="js/config.js"></script>
 <script src="js/title-paths.js"></script>

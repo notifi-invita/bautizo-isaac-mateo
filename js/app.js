@@ -82,94 +82,72 @@
     toastT = setTimeout(() => t.classList.remove("show"), 4200);
   };
 
-  /* ---------- Lienzos: polvo de luz dorado y pétalos ---------- */
-  const dustCv = $("#dust"), dctx = dustCv.getContext("2d");
+  /* ---------- Pétalos: lluvia suave al confirmar ---------- */
   const petCv = $("#petals"), pctx = petCv.getContext("2d");
-  let W = 0, H = 0, dpr = 1;
+  let W = 0, H = 0;
   function size() {
-    dpr = Math.min(window.devicePixelRatio || 1, LITE ? 1.5 : 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     W = innerWidth; H = innerHeight;
-    [[dustCv, dctx], [petCv, pctx]].forEach(([c, x]) => { c.width = W * dpr; c.height = H * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0); });
+    petCv.width = W * dpr; petCv.height = H * dpr;
+    pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
   size();
   addEventListener("resize", size);
-
-  // Destello suave (bokeh) pre-dibujado para no recalcular degradados
-  const bokeh = document.createElement("canvas");
-  bokeh.width = bokeh.height = 64;
-  const bg = bokeh.getContext("2d"), grd = bg.createRadialGradient(32, 32, 0, 32, 32, 32);
-  grd.addColorStop(0, "rgba(246,226,176,.9)"); grd.addColorStop(0.45, "rgba(226,193,128,.35)"); grd.addColorStop(1, "rgba(226,193,128,0)");
-  bg.fillStyle = grd; bg.fillRect(0, 0, 64, 64);
-
-  const dust = [];
-  for (let i = 0; i < (LITE ? 28 : 70); i++) {
-    const z = rand(0.2, 1), big = !LITE && Math.random() < 0.12;
-    dust.push({ x: Math.random(), y: Math.random(), z, r: big ? rand(8, 18) : 0.5 + z * 1.6, big, vy: rand(0.004, 0.012) * z, ph: rand(0, 6.28), sp: rand(0.6, 1.8) });
+  // Pétalos pre-dibujados en 5 tonos (se dibujan como imagen: rápido en celulares)
+  const TONES = [["#fffaf1", "#ecdcc0"], ["#f7e7cf", "#d9b77e"], ["#e8eee9", "#a9bcae"], ["#fbefe6", "#e2c1a4"], ["#f4e3bd", "#c39a5c"]];
+  const sprites = TONES.map(([a, b]) => {
+    const c = document.createElement("canvas");
+    c.width = 40; c.height = 56;
+    const x = c.getContext("2d"), g = x.createLinearGradient(0, 0, 0, 56);
+    g.addColorStop(0, a); g.addColorStop(1, b);
+    x.fillStyle = g;
+    x.beginPath(); x.moveTo(20, 54); x.bezierCurveTo(2, 40, 2, 12, 20, 2); x.bezierCurveTo(38, 12, 38, 40, 20, 54); x.fill();
+    x.strokeStyle = "rgba(150,120,70,.22)"; x.lineWidth = 1; x.stroke();
+    return c;
+  });
+  let parts = [], raf = 0, last = 0;
+  function addPetal(x, y, vx, vy, s) {
+    parts.push({ x, y, vx, vy, s, rot: rand(0, 6.28), vr: rand(-1.4, 1.4), ph: rand(0, 6.28), fr: rand(1.6, 3.4), sw: rand(16, 38), img: sprites[Math.floor(rand(0, sprites.length))], life: 0 });
   }
-  let lastT = performance.now();
-  function drawDust(now) {
-    const dt = Math.min(0.05, (now - lastT) / 1000);
-    lastT = now;
-    dctx.clearRect(0, 0, W, H);
-    const sy = window.scrollY || 0;
-    for (const p of dust) {
-      if (!reduce) p.y -= p.vy * dt;
-      if (p.y < -0.05) { p.y = 1.05; p.x = Math.random(); }
-      let y = (p.y * H - sy * p.z * 0.18) % (H + 40);
-      if (y < -20) y += H + 40;
-      const x = p.x * W, a = 0.3 + 0.7 * Math.abs(Math.sin(p.ph + now * 0.001 * p.sp));
-      if (p.big) {
-        dctx.globalAlpha = a * 0.35;
-        dctx.drawImage(bokeh, x - p.r, y - p.r, p.r * 2, p.r * 2);
-      } else {
-        dctx.globalAlpha = a * 0.85;
-        dctx.fillStyle = "#d4b074";
-        dctx.beginPath(); dctx.arc(x, y, p.r, 0, 6.283); dctx.fill();
-        if (p.r > 1.7 && a > 0.9) {
-          dctx.strokeStyle = "rgba(255,244,214,.9)"; dctx.lineWidth = 0.6;
-          dctx.beginPath(); dctx.moveTo(x - 5, y); dctx.lineTo(x + 5, y); dctx.moveTo(x, y - 5); dctx.lineTo(x, y + 5); dctx.stroke();
-        }
-      }
+  function loop(t) {
+    const dt = Math.min(0.05, (t - (last || t)) / 1000);
+    last = t;
+    pctx.clearRect(0, 0, W, H);
+    parts = parts.filter((p) => p.y < H + 40 && p.life < 14);
+    for (const p of parts) {
+      p.life += dt; p.ph += p.fr * dt;
+      p.vy = Math.min(p.vy + 180 * dt, 115);
+      p.vx *= 0.985;
+      p.x += (p.vx + Math.sin(p.ph) * p.sw) * dt;
+      p.y += p.vy * dt;
+      p.rot += p.vr * dt;
+      pctx.save();
+      pctx.translate(p.x, p.y); pctx.rotate(p.rot);
+      pctx.scale(p.s * (0.25 + 0.75 * Math.abs(Math.cos(p.ph * 1.3))), p.s);
+      pctx.globalAlpha = Math.max(0, Math.min(1, p.life * 3, (H + 40 - p.y) / 120));
+      pctx.drawImage(p.img, -20, -28);
+      pctx.restore();
     }
-    dctx.globalAlpha = 1;
-    if (!reduce) requestAnimationFrame(drawDust);
+    if (parts.length) raf = requestAnimationFrame(loop);
+    else { raf = 0; last = 0; pctx.clearRect(0, 0, W, H); }
   }
-  requestAnimationFrame(drawDust);
-
-  // Pétalos y papel dorado
-  const COLORS = ["#d9b77e", "#c39a5c", "#f1dfb8", "#a9bcae", "#869d8e", "#fffaf0", "#e3c2a0"];
-  let parts = [], raf = 0;
-  UI.petals = function (x, y, n, spread) {
+  const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
+  UI.petalShower = function (n) {
+    if (reduce) return;
+    n = LITE ? Math.round(n * 0.5) : n;
+    for (let i = 0; i < n; i++) addPetal(rand(0, W), rand(-H * 0.7, -20), rand(-20, 20), rand(20, 70), rand(0.28, 0.5));
+    kick();
+  };
+  UI.petals = function (x, y, n) {
     if (reduce) return;
     n = LITE ? Math.round(n * 0.5) : n;
     for (let i = 0; i < n; i++) {
-      const a = rand(0, Math.PI * 2), v = rand(3, spread || 11);
-      parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 5, w: rand(5, 11), h: rand(3, 7), rot: rand(0, 6.28), vr: rand(-0.25, 0.25), flip: rand(0, 6.28),
-        c: COLORS[Math.floor(rand(0, COLORS.length))], leaf: Math.random() < 0.45, life: 0, max: rand(140, 230) });
+      const a = rand(-Math.PI * 0.95, -Math.PI * 0.05), v = rand(80, 240);
+      addPetal(x, y, Math.cos(a) * v, Math.sin(a) * v, rand(0.22, 0.42));
     }
-    if (!raf) raf = requestAnimationFrame(tickPetals);
+    kick();
   };
-  function tickPetals() {
-    pctx.clearRect(0, 0, W, H);
-    parts = parts.filter((p) => p.life < p.max && p.y < H + 30);
-    for (const p of parts) {
-      p.life++; p.vx *= 0.985; p.vy = Math.min(p.vy + 0.2, 3); p.flip += 0.12;
-      p.x += p.vx + Math.sin(p.life / 10) * 0.5; p.y += p.vy; p.rot += p.vr;
-      pctx.save();
-      pctx.globalAlpha = Math.min(1, (p.max - p.life) / 40);
-      pctx.translate(p.x, p.y); pctx.rotate(p.rot); pctx.scale(1, Math.abs(Math.cos(p.flip)) * 0.8 + 0.2);
-      pctx.fillStyle = p.c;
-      if (p.leaf) { pctx.beginPath(); pctx.ellipse(0, 0, p.w * 0.9, p.h * 0.55, 0, 0, 6.283); pctx.fill(); }
-      else pctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-      pctx.restore();
-    }
-    raf = parts.length ? requestAnimationFrame(tickPetals) : 0;
-  }
-  UI.celebrate = function () {
-    UI.petals(W / 2, H * 0.45, 150);
-    setTimeout(() => UI.petals(W * 0.2, H * 0.6, 80), 250);
-    setTimeout(() => UI.petals(W * 0.8, H * 0.6, 80), 450);
-  };
+  UI.celebrate = () => UI.petalShower(70);
 
   /* ---------- Música con entrada suave ---------- */
   const bgm = $("#bgm"), musicBtn = $("#musicBtn");

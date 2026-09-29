@@ -14,7 +14,7 @@ Invitación web animada con confirmación de asistencia. Las respuestas se guard
 | `js/app.js`, `js/motion.js`, `js/rsvp.js`, `js/art.js` | Contenido, animaciones (GSAP), confirmación e ilustraciones |
 | `css/` y `fonts/` | Estilos y tipografías (alojadas en el sitio) |
 | `img/` | Acuarelas pre-renderizadas, portada para WhatsApp (`og.jpg`) y tus fotos |
-| `vendor/` | GSAP 3.15 y Supabase (incluidos para no depender de otros servidores) |
+| `vendor/` | GSAP 3.15 con sus plugins, Lenis y Supabase (incluidos para no depender de otros servidores) |
 | `setup.sql` | Crea la tabla y las reglas de seguridad en Supabase |
 
 ## 1 · Activar GitHub Pages (una sola vez)
@@ -56,9 +56,15 @@ https://notifi-invita.github.io/bautizo-isaac-mateo/?para=Familia%20Pérez
 
 ## Animaciones
 
-Sello de cera que se rompe, solapa 3D, carta que se convierte en la página, flores de acuarela en capas, título escrito a mano, oro que brilla según la inclinación del celular, cinta que se despliega, reloj de paletas, secciones que se pintan al bajar, paloma que cruza con el scroll, hojas que caen y suelta de palomas al confirmar.
+Hechas con GSAP 3.15 (MorphSVG, Physics2D, DrawSVG, SplitText, ScrollTrigger) y Lenis para el scroll suave en computadora.
 
-En celulares modestos se activa un **modo ligero** automático (menos partículas y efectos), y quien tenga activado "reducir movimiento" ve la invitación sin animaciones.
+- **Apertura:** el sello se agrieta y se parte en dos con gravedad real, la solapa se abre en 3D, la carta sale, la cámara se acerca y un destello de luz revela la tarjeta.
+- **Tarjeta:** las flores se pintan desde las esquinas, los marcos dorados se dibujan, la corona crece alrededor de la foto, las palomas llegan volando con aleteo real (las alas cambian de forma) y se posan, y «Bautizo» se escribe a mano letra por letra.
+- **Al bajar:** cada sección se revela en orden con la misma familia de curvas; el reloj de paletas cuenta en vivo.
+- **Al confirmar:** «Gracias» se escribe a mano, se sueltan palomas y cae una lluvia suave de pétalos.
+- **Oro vivo:** el dorado brilla según la inclinación del celular o el movimiento del mouse.
+
+**Rendimiento:** solo se animan propiedades que la tarjeta gráfica mueve sin esfuerzo (posición, escala, opacidad); las acuarelas, la corona y el osito van pre-renderizados. En celulares modestos se activa un modo ligero automático, y quien tenga activado «reducir movimiento» ve todo sin animaciones.
 
 ## Probar en tu computador
 

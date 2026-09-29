@@ -30,7 +30,7 @@
   ART.defs = () => `
 ${lg("lgEucaA", "#86a092", "#cbd8cf")}${lg("lgEucaB", "#738e80", "#b5c8bb")}${lg("lgEucaC", "#a3b6a9", "#e2e9e3")}
 ${lg("lgOliveA", "#50695a", "#8ea596")}${lg("lgOliveB", "#657f6f", "#a8bbad")}
-${lg("lgFeather", "#ebe3d2", "#fffefb")}${lg("lgDove", "#ffffff", "#ebe3d4", 'x1="0" y1="0" x2="0" y2="1"')}
+${lg("lgFeather", "#ebe3d2", "#fffefb")}${lg("lgWing", "#fffefb", "#ece3d2", 'x1="0" y1="0" x2="1" y2="1"')}${lg("lgWingFar", "#f4efe5", "#e2d8c5", 'x1="0" y1="0" x2="1" y2="1"')}${lg("lgDove", "#ffffff", "#ebe3d4", 'x1="0" y1="0" x2="0" y2="1"')}
 ${lg("lgBow", "#c2d4c6", "#8aa592", 'x1="0" y1="0" x2="0" y2="1"')}
 <linearGradient id="lgPetal" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#b1bfb4"/><stop offset=".5" stop-color="#e0e7e1"/><stop offset="1" stop-color="#f9fbf7"/></linearGradient>
 <linearGradient id="lgPetalWarm" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#d2c4aa"/><stop offset=".55" stop-color="#efe8d9"/><stop offset="1" stop-color="#fdfbf6"/></linearGradient>
@@ -229,37 +229,26 @@ ${lg("gRoseDark", "#b87c52", "#8e5a37", 'x1="0" y1="0" x2="1" y2="1"')}
     return `<svg viewBox="0 0 430 280" aria-hidden="true"><g filter="url(#wc)">${side(118, 236)}${side(62, -56)}</g></svg>`;
   };
 
-  /* ---------- Paloma con plumas (mira a la derecha) ---------- */
+  /* ---------- Paloma estilizada con 3 poses de ala (para MorphSVG) ---------- */
+  // Mira a la derecha. El ala cercana y el ala lejana cambian de forma entre
+  // arriba → medio → abajo para un aleteo real (no un simple aplastado).
+  ART.WING = {
+    up:   "M132 68C136 46 126 22 104 6C101 16 96 22 88 24C90 31 87 37 79 40C83 47 80 53 73 56C80 62 86 68 98 72C110 76 124 74 132 68Z",
+    mid:  "M132 68C122 52 100 42 60 40C66 46 68 50 64 54C71 56 74 59 70 63C78 64 82 67 80 71C86 73 92 75 98 76C112 78 126 75 132 68Z",
+    down: "M132 68C130 86 118 106 96 120C97 110 95 105 90 102C94 96 93 91 88 88C93 84 94 80 92 77C96 76 98 75 100 74C112 76 126 74 132 68Z",
+    cUp:  "M132 68C132 56 124 44 112 36C110 44 104 50 98 54C100 60 100 66 104 70C114 72 126 72 132 68Z",
+    cMid: "M132 68C126 60 114 54 98 52C100 58 98 62 94 64C98 68 100 71 104 73C114 75 126 73 132 68Z",
+    cDown:"M132 68C132 78 126 88 116 94C112 88 108 86 104 86C104 80 104 77 104 74C114 75 126 73 132 68Z"
+  };
   ART.dove = function () {
-    const st = 'stroke="#d3c4a8" stroke-width=".8"';
-    const feather = (x, y, a, len, wid, fill) =>
-      `<path transform="translate(${f(x)} ${f(y)}) rotate(${f(a)})" d="${leafShape(len, wid)}" fill="${fill}" ${st}/>`;
-    // Ala levantada: plumas en abanico desde el hombro (122,92), escalada y desplazada
-    const wing = (ox, oy, s, fill, cover) => {
-      const P = (x, y) => [122 + (x - 122) * s + ox, 92 + (y - 92) * s + oy];
-      let g = "";
-      const n = 13;
-      for (let i = n - 1; i >= 0; i--) {
-        const t = i / (n - 1);
-        const [x, y] = P(124 - 22 * t, 92 - 13 * t);
-        const len = (i < 3 ? 64 + i * 4 : 74 - (i - 2) * 2.8) * s;
-        g += feather(x, y, -88 - t * 74, len, 11 * s, fill);
-      }
-      for (let i = 0; i < 6; i++) {
-        const [x, y] = P(126 - i * 4.4, 93 - i * 2.8);
-        g += `<path transform="translate(${f(x)} ${f(y)}) rotate(${f(-104 - i * 9)})" d="${leafShape(28 * s, 10 * s, "round")}" fill="${cover}" ${st}/>`;
-      }
-      return g;
-    };
-    let tail = "";
-    for (let i = 0; i < 5; i++) tail += feather(72, 108, 158 + i * 9, 42 + (i === 2 ? 6 : 0), 8, "url(#lgFeather)");
-    return `<svg viewBox="0 0 200 160" aria-hidden="true" class="dove-svg">
-<g class="wing back">${wing(-10, -6, 0.92, "#eee6d6", "#f6f1e7")}</g>
-${tail}
-<path d="M58 106C74 88 110 84 138 88C146 76 158 70 168 72C179 74 185 82 187 88C183 104 170 112 156 116C130 125 92 124 68 116Z" fill="url(#lgDove)" ${st}/>
-<path d="M186 85L197 89.5L185 93Z" fill="#d7b173"/>
-<circle cx="173" cy="82" r="2.3" fill="#433a33"/><circle cx="173.7" cy="81.3" r=".7" fill="#fff"/>
-<g class="wing front">${wing(0, 0, 1, "url(#lgFeather)", "#fffdf8")}</g>
+    const W = ART.WING, st = 'stroke="#cdbd9f" stroke-width="1" stroke-linejoin="round"', cst = 'stroke="#e2d6c0" stroke-width=".8" stroke-linejoin="round"';
+    return `<svg viewBox="0 -18 200 160" aria-hidden="true" class="dove-svg">
+<g transform="translate(-9 -5) translate(132 68) scale(1.22) translate(-132 -68)"><path class="w-far" d="${W.up}" fill="url(#lgWingFar)" ${st}/><path class="c-far" d="${W.cUp}" fill="#efe8dc" ${cst}/></g>
+<path d="M168 56C166 48 158 44 150 47C143 50 140 57 132 61C114 69 88 72 62 76L28 70C22 69 20 75 25 78C19 80 19 87 26 87C22 91 26 97 32 94L62 88C80 99 112 101 134 93C150 88 162 78 168 64Z" fill="url(#lgDove)" ${st}/>
+<path d="M36 78L60 80M34 86L60 84" stroke="#e2d6c0" stroke-width="1" fill="none" stroke-linecap="round"/>
+<path d="M167 55L181 60L167 64Z" fill="#d6ae6c"/>
+<circle cx="159" cy="55" r="2.1" fill="#3d3530"/><circle cx="159.7" cy="54.3" r=".7" fill="#fff"/>
+<g transform="translate(132 68) scale(1.22) translate(-132 -68)"><path class="w-near" d="${W.up}" fill="url(#lgWing)" ${st}/><path class="c-near" d="${W.cUp}" fill="#f8f3ea" ${cst}/></g>
 </svg>`;
   };
 
@@ -348,14 +337,22 @@ ${pad(46, 159)}${pad(114, 159)}
   ART.fallingLeaf = (kind) =>
     `<svg viewBox="-2 -14 32 28" aria-hidden="true"><path d="${leafShape(28, kind === "round" ? 12 : 6, kind)}" fill="url(#${kind === "round" ? "lgEucaA" : "lgOliveB"})"/><path d="M3 0H24" stroke="rgba(255,255,255,.45)" stroke-width=".8"/></svg>`;
 
-  /* ---------- Letra cursiva en trazos (para escribir a mano) ---------- */
+  /* ---------- Letra cursiva que se escribe a mano ---------- */
+  // Cada letra rellena en oro lleva una máscara: un trazo grueso sobre su contorno.
+  // Al "dibujar" ese trazo (DrawSVG), la letra aparece como si la pluma la escribiera.
   let titleCount = 0;
   ART.title = function (key) {
     const t = window.TITLE_PATHS && window.TITLE_PATHS[key];
     if (!t) return "";
     const [x, y, w, h] = t.viewBox.split(" ").map(Number);
-    const id = `foil-${key}-${titleCount++}`;
-    return `<svg viewBox="${t.viewBox}" class="script-svg" aria-hidden="true"><defs><linearGradient id="${id}" class="foil-grad" data-w="${w}" gradientUnits="userSpaceOnUse" x1="${x}" y1="${y}" x2="${f(x + w)}" y2="${f(y + h * 0.6)}" spreadMethod="reflect"><stop offset="0" stop-color="#9b6f3a"/><stop offset=".28" stop-color="#c9a062"/><stop offset=".46" stop-color="#f8edcc"/><stop offset=".6" stop-color="#d5ad6c"/><stop offset=".82" stop-color="#a87b44"/><stop offset="1" stop-color="#dcbd80"/></linearGradient></defs><g class="glyphs">${t.glyphs.map((d) => `<path class="gl" d="${d}" fill="url(#${id})"/>`).join("")}</g></svg>`;
+    const id = `t-${key}-${titleCount++}`;
+    const sw = key === "name" ? 16 : 22;
+    let masks = "", glyphs = "";
+    t.glyphs.forEach((d, i) => {
+      masks += `<mask id="${id}-m${i}" maskUnits="userSpaceOnUse" x="${x}" y="${y}" width="${w}" height="${h}"><path class="gm" d="${d}" fill="none" stroke="#fff" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/></mask>`;
+      glyphs += `<path class="gl" d="${d}" fill="url(#${id}-f)" mask="url(#${id}-m${i})"/>`;
+    });
+    return `<svg viewBox="${t.viewBox}" class="script-svg" aria-hidden="true"><defs><linearGradient id="${id}-f" class="foil-grad" data-w="${w}" gradientUnits="userSpaceOnUse" x1="${x}" y1="${y}" x2="${f(x + w)}" y2="${f(y + h * 0.6)}" spreadMethod="reflect"><stop offset="0" stop-color="#9b6f3a"/><stop offset=".28" stop-color="#c9a062"/><stop offset=".46" stop-color="#f8edcc"/><stop offset=".6" stop-color="#d5ad6c"/><stop offset=".82" stop-color="#a87b44"/><stop offset="1" stop-color="#dcbd80"/></linearGradient>${masks}</defs><g class="glyphs">${glyphs}</g></svg>`;
   };
 
   /* ---------- Rellenar la página ---------- */
