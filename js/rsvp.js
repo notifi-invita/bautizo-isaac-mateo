@@ -128,11 +128,36 @@
     }
   }
 
-  // ¿Ya respondió desde este dispositivo?
+  function showForm() {
+    thanks.hidden = true; closed.hidden = true; dlEl.hidden = false; form.hidden = false;
+    if (Date.now() > deadline) showClosed();
+  }
+  const forget = () => { try { localStorage.removeItem(KEY); } catch (_) {} };
+  // Id aleatorio de la respuesta: con él se puede preguntar a la base si sigue existiendo
+  function newId() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    const b = crypto.getRandomValues(new Uint8Array(16));
+    b[6] = (b[6] & 15) | 64; b[8] = (b[8] & 63) | 128;
+    const h = Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+    return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+  }
+
+  // ¿Ya respondió desde este celular? Se confirma con la base de datos: si los papás
+  // borraron la respuesta en el panel, el formulario vuelve a aparecer.
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (_) {}
-  if (saved && saved.first) showThanks(saved, false);
-  else if (Date.now() > deadline) showClosed();
+  if (saved && saved.first && saved.id) {
+    showThanks(saved, false);
+    if (configured) {
+      getSupabase()
+        .then((sb) => sb && sb.rpc("rsvp_exists", { p_id: saved.id }))
+        .then((res) => { if (res && !res.error && res.data === false) { forget(); showForm(); } })
+        .catch(() => {});
+    }
+  } else {
+    if (saved) forget(); // guardado por la versión anterior (sin id): se muestra el formulario
+    if (Date.now() > deadline) showClosed();
+  }
 
   /* ---------- Envío ---------- */
   const clean = (s) => s.replace(/\s+/g, " ").trim();
@@ -167,9 +192,10 @@
     try {
       const sb = await getSupabase();
       if (configured && !sb) throw new Error("No se pudo cargar Supabase");
+      const id = newId();
       if (sb) {
         const { error } = await sb.from("rsvps").insert({
-          first_name: first, last_name: last, attending, guests: attending ? guests : 0, message: message || null
+          id, first_name: first, last_name: last, attending, guests: attending ? guests : 0, message: message || null
         });
         if (error) {
           if (error.code === "23505") {
@@ -181,7 +207,7 @@
       } else {
         UI.toast("Vista previa: la respuesta no se guardó porque aún falta conectar Supabase.");
       }
-      const data = { first, attending, guests: attending ? guests : 0, message };
+      const data = { id, first, attending, guests: attending ? guests : 0, message };
       if (sb) { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (_) {} }
       showThanks(data, true);
     } catch (err) {

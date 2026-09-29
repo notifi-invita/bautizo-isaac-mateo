@@ -51,7 +51,7 @@ alter table public.rsvps enable row level security;
 -- Permisos explícitos (los proyectos nuevos de Supabase ya no los dan solos)
 grant usage on schema public to anon, authenticated;
 revoke all on public.rsvps from anon, authenticated;
-grant insert (first_name, last_name, attending, guests, message) on public.rsvps to anon;
+grant insert (id, first_name, last_name, attending, guests, message) on public.rsvps to anon;
 grant select, delete on public.rsvps to authenticated;
 
 drop policy if exists "invitados pueden enviar" on public.rsvps;
@@ -68,3 +68,18 @@ drop policy if exists "admin puede borrar" on public.rsvps;
 create policy "admin puede borrar"
   on public.rsvps for delete to authenticated
   using (exists (select 1 from public.admins a where a.user_id = (select auth.uid())));
+
+-- ¿Sigue existiendo mi respuesta? La invitación guarda en el celular del invitado el id
+-- (aleatorio, imposible de adivinar) de su respuesta. Si los papás la borran en el panel,
+-- esta consulta devuelve false y el formulario vuelve a aparecer. No revela ningún dato.
+create or replace function public.rsvp_exists(p_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (select 1 from public.rsvps where id = p_id);
+$$;
+revoke all on function public.rsvp_exists(uuid) from public;
+grant execute on function public.rsvp_exists(uuid) to anon, authenticated;
