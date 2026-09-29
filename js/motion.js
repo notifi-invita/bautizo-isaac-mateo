@@ -7,9 +7,9 @@
    Carga:     monograma que se escribe con el progreso real
               (loader.js) → el sobre aparece.
    Apertura:  sello que se agrieta y se parte (física real) →
-              solapa 3D → la carta sale → la cámara se acerca →
-              destello de luz → aparece la tarjeta.
-   Tarjeta:   papel → flores que se pintan → marcos dorados →
+              solapa 3D → la carta sale → el sobre baja y se va →
+              la carta viaja al centro → destello de luz → tarjeta.
+   Tarjeta:   papel → flores que aparecen por capas → marcos dorados →
               foto con revelado líquido (WebGL) y corona →
               palomas que llegan volando →
               "Bautizo" escrito a mano → cinta → texto.
@@ -35,7 +35,9 @@
   introCtrls.forEach((el) => { el.inert = true; });
   let wanted = null;
   const release = () => { introCtrls.forEach((el) => { el.inert = false; }); };
-  const focusMain = () => { const m = $("#main"); m.setAttribute("tabindex", "-1"); m.focus({ preventScroll: true }); };
+  const mainEl = $("#main");
+  mainEl.inert = true;
+  const focusMain = () => { mainEl.inert = false; mainEl.setAttribute("tabindex", "-1"); mainEl.focus({ preventScroll: true }); };
   let lenis = null;
 
   function unlock() {
@@ -91,20 +93,32 @@
   }
 
   /* ================= ORO QUE REACCIONA A LA INCLINACIÓN ================= */
-  const foils = $$(".foil-grad");
-  // Las variables de luz se ponen solo en los elementos que las usan (en :root obligaban
-  // a recalcular los estilos de toda la página en cada cuadro)
-  const lit = $$(".seal-face, #photoRing, #coin");
+  // Solo se actualiza lo que está a la vista (un IntersectionObserver lo sabe), a ~30 cuadros
+  // por segundo y con cambios redondeados: el brillo se ve igual y cuesta mucho menos.
+  const shiny = [
+    ...$$(".foil-grad").map((g) => ({ box: g.closest("svg"), kind: "g", el: g, w: Number(g.dataset.w || 1) })),
+    ...$$(".seal-face, #photoRing, #coin").map((el) => ({ box: el, kind: "v", el }))
+  ];
+  const inView = new Set();
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting ? inView.add(e.target) : inView.delete(e.target))));
+    new Set(shiny.map((s) => s.box)).forEach((b) => io.observe(b));
+  } else shiny.forEach((s) => inView.add(s.box));
   const tilt = (UI.tilt = { x: 0, y: 0, auto: -1.1 });
-  let lastKey = "";
-  gsap.ticker.add(() => {
+  let lastKey = "", lastT = 0;
+  gsap.ticker.add((time) => {
+    if (time - lastT < 0.032) return;
+    lastT = time;
     const sx = Math.max(-1.6, Math.min(1.6, tilt.x + tilt.auto)), sy = tilt.y;
-    const key = sx.toFixed(3) + sy.toFixed(3);
+    const key = sx.toFixed(2) + sy.toFixed(2);
     if (key === lastKey) return;
     lastKey = key;
-    for (const g of foils) g.setAttribute("gradientTransform", `translate(${(sx * 0.32 * Number(g.dataset.w || 1)).toFixed(2)} 0)`);
     const lx = (34 + sx * 18).toFixed(1) + "%", ly = (28 + sy * 14).toFixed(1) + "%";
-    for (const el of lit) { el.style.setProperty("--lx", lx); el.style.setProperty("--ly", ly); }
+    for (const s of shiny) {
+      if (!inView.has(s.box)) continue;
+      if (s.kind === "g") s.el.setAttribute("gradientTransform", `translate(${(sx * 0.32 * s.w).toFixed(1)} 0)`);
+      else { s.el.style.setProperty("--lx", lx); s.el.style.setProperty("--ly", ly); }
+    }
   });
   // Un destello lento que recorre el oro de vez en cuando
   gsap.to(tilt, { auto: 1.1, duration: 2.6, ease: "inOut", yoyo: true, repeat: -1, repeatDelay: 3.5, delay: 1 });
@@ -113,29 +127,42 @@
   const env = $("#envelope");
   const envRX = gsap.quickTo(env, "rotationX", { duration: 1.2, ease: "power3.out" });
   const envRY = gsap.quickTo(env, "rotationY", { duration: 1.2, ease: "power3.out" });
-  let introActive = true, layerTilt = null;
+  // El sobre se inclina solo mientras espera; al abrirlo queda quieto (si no, la carta
+  // salía torcida y el acercamiento se descentraba en celulares con giroscopio).
+  let introActive = true, envTilt = true, layerTilt = null;
+  const envK = isTouch ? 0.6 : 1;
   function applyTilt(nx, ny) {
     tx(nx); ty(ny);
-    if (introActive) { envRY(nx * 8); envRX(-ny * 6); }
+    if (introActive) { if (envTilt) { envRY(nx * 8 * envK); envRX(-ny * 6 * envK); } }
     else if (layerTilt) layerTilt(nx, ny);
   }
   addEventListener("pointermove", (e) => {
     if (e.pointerType === "mouse") applyTilt((e.clientX / innerWidth) * 2 - 1, (e.clientY / innerHeight) * 2 - 1);
   });
+  // Giroscopio: se mide la diferencia con la posición en que la persona sostiene el celular
+  // (y esa referencia se re-centra despacio). Así, en reposo, el sobre se ve derecho.
   let gyro = false;
   function listenGyro() {
     if (gyro) return;
     gyro = true;
+    let base = null, last = 0;
+    const clamp1 = gsap.utils.clamp(-1, 1);
+    const wrap = (d, r) => ((((d + r) % (2 * r)) + 2 * r) % (2 * r)) - r;
     addEventListener("deviceorientation", (e) => {
-      if (e.gamma == null) return;
-      applyTilt(Math.max(-1, Math.min(1, e.gamma / 30)), Math.max(-1, Math.min(1, (e.beta - 45) / 30)));
+      if (e.gamma == null || e.beta == null) return;
+      const now = performance.now(), dt = Math.min(0.5, (now - (last || now)) / 1000);
+      last = now;
+      if (!base) base = { b: e.beta, g: e.gamma };
+      let db = wrap(e.beta - base.b, 180), dg = wrap(e.gamma - base.g, 90);
+      // Un salto brusco (celular volteado o que pasa por la vertical) reinicia la referencia
+      if (Math.abs(db) > 45 || Math.abs(dg) > 45) { base = { b: e.beta, g: e.gamma }; db = dg = 0; }
+      const k = 1 - Math.exp(-dt / 2.5); // la referencia se re-centra en unos segundos
+      base.b += db * k;
+      base.g += dg * k;
+      applyTilt(clamp1(dg / 25), clamp1(db / 25));
     });
   }
-  function askGyro() {
-    const D = window.DeviceOrientationEvent;
-    if (D && typeof D.requestPermission === "function") D.requestPermission().then((s) => s === "granted" && listenGyro()).catch(() => {});
-    else if (D) listenGyro();
-  }
+  // En iPhone el giroscopio pide permiso con un cuadro del sistema: no se pide (taparía la apertura)
   if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission !== "function") listenGyro();
 
   /* ================= SOBRE EN REPOSO ================= */
@@ -152,8 +179,7 @@
     .from("#introTo", { opacity: 0, y: 14, duration: 1.4 }, 0.2)
     .from(env, { opacity: 0, y: 40, scale: 0.95, duration: 1.8 }, 0.35)
     .from(seal, { opacity: 0, scale: 0.7, duration: 1.4 }, 1.05)
-    .from(".intro-hint", { opacity: 0, y: 8, duration: 1.2 }, 1.4)
-    .from(quietBtn, { opacity: 0, y: 8, duration: 1.2 }, 1.6);
+    .from(".intro-cta > *", { opacity: 0, y: 8, duration: 1.2, stagger: 0.14 }, 1.4);
   const float = gsap.to(stage, { y: -6, duration: 3.4, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 2, paused: true });
   const sealPulse = gsap.to(".seal-glow", { opacity: 0.5, scale: 1.06, duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 2.2, paused: true });
 
@@ -184,27 +210,39 @@
     return tl;
   }
 
-  /* ================= SOLAPA, CARTA, CÁMARA Y LUZ ================= */
+  /* ================= SOLAPA, CARTA Y LUZ ================= */
+  // La carta sale, el sobre baja y se desvanece, la carta viaja al centro de la pantalla
+  // y crece un poco; un destello cálido la cubre y, al disiparse, ya está la tarjeta.
+  const RISE = -64;
+  // Distancia para dejar la carta en el centro (se calcula al momento: sirve en cualquier pantalla)
+  function letterToCenter() {
+    const r = letter.getBoundingClientRect(), h = letter.offsetHeight;
+    const pending = ((RISE - gsap.getProperty(letter, "yPercent")) / 100) * h;
+    return innerHeight * 0.47 - (r.top + r.height / 2 + pending);
+  }
+  const letterGrow = () => gsap.utils.clamp(1, 1.3, (innerWidth * 0.84) / letter.offsetWidth);
   function openEnvelope() {
     return gsap.timeline()
-      .to(["#introTo", ".intro-hint", quietBtn], { opacity: 0, y: -8, duration: 0.6, ease: "soft" }, 0)
+      .to(["#introTo", ".intro-cta"], { opacity: 0, y: -8, duration: 0.6, ease: "soft" }, 0)
+      .to(env, { rotationX: 0, rotationY: 0, duration: 0.6, ease: "soft", overwrite: "auto" }, 0)
+      // La solapa se abre en 3D
       .call(sfx, ["paper", 0.8], 0.4)
-      .call(sfx, ["paper", 1.1], 1.05)
-      .call(sfx, ["glint"], 2.45)
-      .to(env, { rotationX: 0, rotationY: 0, duration: 0.6, ease: "soft" }, 0)
       .to(flap, { rotationX: 180, duration: 1, ease: "inOut" }, 0.4)
       .set(flap, { zIndex: 0, z: -1 }, 0.9)
-      .to(letter, { yPercent: -58, duration: 1.3 }, 1.05)
-      .to(stage, { y: 46, duration: 1.3 }, 1.05)
-      .add(() => {
-        const s = stage.getBoundingClientRect(), l = letter.getBoundingClientRect();
-        gsap.set(stage, { transformOrigin: `${(l.left + l.width / 2 - s.left).toFixed(1)}px ${(l.top + l.height * 0.4 - s.top).toFixed(1)}px` });
-      }, 2.08)
-      .to(stage, { scale: 2.6, duration: 1.4, ease: "power3.in" }, 2.1)
-      .to([".env-back", ".env-front", flap], { opacity: 0, duration: 0.8, ease: "power1.in" }, 2.2)
-      .to("#bloom", { opacity: 1, scale: 1, duration: 1.2, ease: "power2.in" }, 2.3)
-      .set(stage, { opacity: 0 }, 3.5)
-      .to(intro, { autoAlpha: 0, duration: 1.1, ease: "soft" }, 3.45)
+      // La carta sale del sobre
+      .call(sfx, ["paper", 1.1], 1)
+      .to(letter, { yPercent: RISE, duration: 1.2 }, 1)
+      // El sobre baja y se desvanece; la carta va al centro y crece
+      .call(() => env.classList.add("is-open"), null, 1.55)
+      .to([".env-back", ".env-front", flap], { y: 90, duration: 1.1, ease: "inOut" }, 1.55)
+      .to([".env-back", ".env-front", ".flap-face"], { opacity: 0, duration: 1.1, ease: "inOut" }, 1.55)
+      .to(letter, { y: letterToCenter, scale: letterGrow, duration: 1.3, ease: "inOut" }, 1.75)
+      .to(".intro-glow", { opacity: 0.4, duration: 1.2, ease: "soft" }, 1.6)
+      // Destello cálido y fundido a la tarjeta
+      .call(sfx, ["glint"], 2.4)
+      .to("#bloom", { opacity: 1, scale: 1, duration: 1.1, ease: "power2.in" }, 2.35)
+      .to(letter, { opacity: 0, duration: 0.5, ease: "power1.in" }, 2.95)
+      .to(intro, { autoAlpha: 0, duration: 0.9, ease: "soft" }, 3.25)
       .set(intro, { display: "none" });
   }
 
@@ -241,24 +279,42 @@
 
   /* ================= ESTADOS INICIALES ================= */
   const split = {};
+  // Textos divididos en líneas: si antes de animarlos cambia el ancho (se gira el celular)
+  // o llegan tarde las fuentes, se vuelven a dividir para que los cortes coincidan.
+  const lines = {};
+  function lineSplit(key, sel) {
+    const o = lines[key] || (lines[key] = { sel, s: null, busy: false, done: false });
+    if (o.s) o.s.revert();
+    o.s = SplitText.create(sel, { type: "lines", mask: "lines" });
+    gsap.set(o.s.lines, { yPercent: 110 });
+    return o;
+  }
+  const finishLines = (o) => { o.done = true; o.s.revert(); };
+  const resplit = () => Object.keys(lines).forEach((k) => { const o = lines[k]; if (!o.busy && !o.done) lineSplit(k, o.sel); });
+  let lastW = innerWidth, resizeT = 0;
+  addEventListener("resize", () => {
+    if (innerWidth === lastW) return; // en celular la barra del navegador cambia solo el alto
+    lastW = innerWidth;
+    clearTimeout(resizeT);
+    resizeT = setTimeout(resplit, 200);
+  });
   const perched = $$(".dove.perch .dove-in");
   let heroReadyAt = Infinity;
   function prepare() {
     gsap.set(".invite", { opacity: 0, y: 40, scale: 0.985 });
-    gsap.set(".floral", { clipPath: "circle(0% at 0% 0%)" });
-    gsap.set(".floral .lay", { scale: 1.08, transformOrigin: "0% 0%" });
+    gsap.set(".floral .lay", { opacity: 0, scale: 0.9, rotation: -4, transformOrigin: "0% 0%" });
     gsap.set(".frame .draw", { drawSVG: "0%" });
     gsap.set(".glow", { opacity: 0, scale: 0.7 });
     gsap.set("#photoRing", { opacity: 0, scale: 0.92 });
     if (!UI.photoReveal) gsap.set("#mainPhoto > *", { opacity: 0, scale: 1.1 });
-    gsap.set(".wreath", { "--a": "0deg" });
+    gsap.set(".wreath", { opacity: 0, scale: 0.86, rotation: -18 });
     gsap.set(perched, { opacity: 0 });
     gsap.set(".title .gm", { drawSVG: "0%" });
-    gsap.set("#ribbon", { clipPath: "inset(0% 50% 0% 50%)", scaleX: 0.92 });
+    gsap.set("#ribbon", { opacity: 0 });
+    gsap.set(".ribbon-art", { scaleX: 0.78 });
     split.name = SplitText.create(".rn-text", { type: "words,chars", mask: "words" });
     gsap.set(split.name.chars, { yPercent: 110 });
-    split.invite = SplitText.create(".invite-text", { type: "lines", mask: "lines" });
-    gsap.set(split.invite.lines, { yPercent: 110 });
+    lineSplit("invite", ".invite-text");
     gsap.set(".bear", { opacity: 0, y: 24 });
     gsap.set([".splat", ".sparkles", ".scroll-cue"], { opacity: 0 });
     // Fecha, familia y botón (se revelan al llegar a ellos)
@@ -275,9 +331,9 @@
     // Secciones
     gsap.set(".sprig", { scaleX: 0, opacity: 0 });
     gsap.set(".sec-title", { clipPath: "polygon(0% -40%, 0% -40%, 0% 140%, 0% 140%)", y: 10 });
-    split.verse = SplitText.create(".verse", { type: "lines", mask: "lines" });
-    split.lead = SplitText.create(".lead", { type: "lines", mask: "lines" });
-    gsap.set([...split.verse.lines, ...split.lead.lines], { yPercent: 110 });
+    lineSplit("verse", ".verse");
+    lineSplit("lead", ".lead");
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(resplit);
     gsap.set([".verse-ref", ".date-long", ".deadline"], { opacity: 0, y: 14 });
     gsap.set(".unit", { opacity: 0, y: 26 });
     gsap.set(".event", { opacity: 0, y: 44 });
@@ -291,9 +347,10 @@
   function dovesIn() {
     const tl = gsap.timeline().call(sfx, ["flutter", 10], 0.1);
     perched.forEach((d, i) => {
-      const cyc = flapCycle(d, 0.085).play();
+      const cyc = flapCycle(d, 0.085);
       const at = i * 0.3;
-      tl.to(d, { opacity: 1, duration: 0.5, ease: "soft" }, at)
+      tl.call(() => cyc.play(0), null, at)
+        .to(d, { opacity: 1, duration: 0.5, ease: "soft" }, at)
         .fromTo(d, { rotation: -14, scale: 0.72 }, {
           motionPath: { path: [{ x: -230, y: -180 }, { x: -120, y: -70 }, { x: -34, y: -20 }, { x: 0, y: 0 }], curviness: 1.3 },
           rotation: 0, scale: 1, duration: 2.5, ease: "soft"
@@ -313,20 +370,23 @@
 
   function heroIn() {
     const title = $(".title svg");
+    lines.invite.busy = true; // desde aquí sus líneas ya no se vuelven a dividir
     return gsap.timeline()
       .to(".invite", { opacity: 1, y: 0, scale: 1, duration: 1.6 }, 0)
-      .to(".floral", { clipPath: "circle(142% at 0% 0%)", duration: 2.6, ease: "soft", stagger: 0.18 }, 0.15)
-      .to(".floral .lay", { scale: 1, duration: 2.8, ease: "soft" }, 0.15)
+      // Flores por capas (fondo → medio → frente), primero la esquina de arriba
+      .to(".floral.tl .lay", { opacity: 1, scale: 1, rotation: 0, duration: 2.2, stagger: 0.16 }, 0.1)
+      .to(".floral.br .lay", { opacity: 1, scale: 1, rotation: 0, duration: 2.2, stagger: 0.16 }, 0.4)
       .to(".frame .draw", { drawSVG: "100%", duration: 2.4, ease: "inOut", stagger: 0.06 }, 0.4)
-      .to(".glow", { opacity: 1, scale: 1, duration: 2.2 }, 0.35)
-      .to("#photoRing", { opacity: 1, scale: 1, duration: 1.6 }, 0.45)
-      .add(photoIn(), 0.7)
-      .to(".wreath", { "--a": "200deg", duration: 2.3, ease: "inOut" }, 0.8)
+      .to(".glow", { opacity: 1, scale: 1, duration: 2.2 }, 0.3)
+      .to("#photoRing", { opacity: 1, scale: 1, duration: 1.6 }, 0.35)
+      .add(photoIn(), 0.5)
+      .to(".wreath", { opacity: 1, scale: 1, rotation: 0, duration: 2 }, 0.6)
       .add(dovesIn(), 1.1)
       .add(writeScript(title), 1.8)
-      .to("#ribbon", { clipPath: "inset(0% 0% 0% 0%)", scaleX: 1, duration: 1.2, ease: "inOut" }, 3.9)
-      .to(split.name.chars, { yPercent: 0, duration: 1, stagger: 0.03, onComplete: () => split.name.revert() }, 4.35)
-      .to(split.invite.lines, { yPercent: 0, duration: 1.2, stagger: 0.1, onComplete: () => split.invite.revert() }, 4.7)
+      .to("#ribbon", { opacity: 1, duration: 0.7, ease: "soft" }, 3.8)
+      .to(".ribbon-art", { scaleX: 1, duration: 1.1 }, 3.8)
+      .to(split.name.chars, { yPercent: 0, duration: 1, stagger: 0.03, onComplete: () => split.name.revert() }, 4.55)
+      .to(lines.invite.s.lines, { yPercent: 0, duration: 1.2, stagger: 0.1, onComplete: () => finishLines(lines.invite) }, 4.7)
       .to(".bear", { opacity: 1, y: 0, duration: 1.4 }, 4.9)
       .to([".splat", ".sparkles"], { opacity: 1, duration: 2, ease: "soft" }, 5)
       .call(startLoops, null, 5.5);
@@ -358,11 +418,13 @@
 
   /* ================= REVELADOS AL HACER SCROLL ================= */
   // Si un bloque de la tarjeta ya está a la vista, espera a que termine la entrada (orden narrativo)
+  // "tl" puede ser una animación ya creada o una función que la crea en ese momento
   function reveal(trigger, tl, start, inHero) {
-    tl.pause();
+    const make = typeof tl === "function" ? tl : null;
+    if (!make) tl.pause();
     ScrollTrigger.create({
       trigger, start: start || "top 86%", once: true,
-      onEnter: () => gsap.delayedCall(inHero ? Math.max(0, (heroReadyAt - performance.now()) / 1000) : 0, () => tl.play())
+      onEnter: () => gsap.delayedCall(inHero ? Math.max(0, (heroReadyAt - performance.now()) / 1000) : 0, () => (make ? make() : tl.play()))
     });
   }
   function initScroll() {
@@ -385,9 +447,10 @@
       if (title) tl.to(title, { clipPath: "polygon(0% -40%, 110% -40%, 110% 140%, 0% 140%)", y: 0, duration: 1.7, ease: "inOut" }, 0.2);
       reveal(sec, tl, "top 80%");
     });
-    reveal(".verse", gsap.to(split.verse.lines, { yPercent: 0, duration: 1.3, stagger: 0.1, onComplete: () => split.verse.revert() }));
+    const lineIn = (o, d, st) => () => { o.busy = true; return gsap.to(o.s.lines, { yPercent: 0, duration: d, stagger: st, onComplete: () => finishLines(o) }); };
+    reveal(".verse", lineIn(lines.verse, 1.3, 0.1));
     reveal(".verse-ref", gsap.to(".verse-ref", { opacity: 1, y: 0, duration: 1.1 }));
-    reveal(".lead", gsap.to(split.lead.lines, { yPercent: 0, duration: 1.2, stagger: 0.08, onComplete: () => split.lead.revert() }));
+    reveal(".lead", lineIn(lines.lead, 1.2, 0.08));
     reveal(".flipclock", gsap.to(".unit", { opacity: 1, y: 0, duration: 1.2, stagger: 0.09 }));
     reveal(".date-long", gsap.to(".date-long", { opacity: 1, y: 0, duration: 1.1 }));
     reveal(".events", gsap.timeline()
@@ -453,7 +516,7 @@
   };
 
   /* ================= APERTURA ================= */
-  // El sello abre con sonido; "Abrir en silencio" abre sin él. Ambos son un gesto del
+  // El sello abre con sonido; "Abrir sin música" abre sin él. Ambos son un gesto del
   // invitado, así el navegador permite reproducir la música.
   let ready = false, opened = false;
   function showMusicBtn() {
@@ -467,25 +530,30 @@
     // El sello deja de ser "tocable" (y el cursor vuelve a su forma normal)
     openBtn.style.pointerEvents = quietBtn.style.pointerEvents = "none";
     if (UI.cursorState) UI.cursorState("base");
-    askGyro();
     UI.setSound(withSound, 2.5);
+    envTilt = false;
+    UI.heroStarted = true;
+    gsap.killTweensOf(env, "rotationX,rotationY");
     idle.progress(1).kill();
     float.kill();
     gsap.set(stage, { y: 0 });
-    const HERO = 3.2;
+    const HERO = 3;
     heroReadyAt = performance.now() + (HERO + 5.3) * 1000;
     gsap.timeline()
       .add(breakSeal(), 0)
-      .add(openEnvelope(), 0.35)
+      .add(openEnvelope(), 0.3)
       .add(heroIn(), HERO)
-      .call(() => { introActive = false; unlock(); initScroll(); ScrollTrigger.refresh(); }, null, HERO + 0.4)
-      .call(() => { intro.hidden = true; focusMain(); }, null, HERO + 1.8)
+      .call(() => { unlock(); initScroll(); }, null, HERO - 0.1)
+      .call(() => { intro.hidden = true; introActive = false; focusMain(); }, null, HERO + 1.5)
       .call(showMusicBtn, null, HERO + 5.6);
   }
   openBtn.addEventListener("click", () => open(true));
   quietBtn.addEventListener("click", () => open(false));
+  let prepared = false;
+  const prepareOnce = () => { if (!prepared) { prepared = true; prepare(); } };
+  Promise.race([UI.fontsReady || Promise.resolve(), new Promise((r) => setTimeout(r, 7000))]).then(prepareOnce);
   whenReady.then(() => {
-    prepare();
+    prepareOnce();
     // Ya con la tarjeta en su estado inicial (casi invisible) se deja pintar debajo del sobre
     document.body.classList.remove("is-loading");
     ready = true;

@@ -27,8 +27,11 @@
     Promise.resolve(p).catch(() => {}).then(() => { j.done = true; });
   }
   if (document.fonts && document.fonts.load) {
-    ['400 1em "Pinyon Script"', '400 1em "Playfair Display"', 'italic 400 1em "Playfair Display"', '600 1em "Playfair Display"', '400 1em "Questrial"']
-      .forEach((f) => track(document.fonts.load(f), 1));
+    const fonts = ['400 1em "Pinyon Script"', '400 1em "Playfair Display"', 'italic 400 1em "Playfair Display"', '600 1em "Playfair Display"', '400 1em "Questrial"']
+      .map((f) => document.fonts.load(f).catch(() => {}));
+    fonts.forEach((p) => track(p, 1));
+    // motion.js prepara la tarjeta en cuanto están las fuentes (antes de que se retire la carga)
+    UI.fontsReady = Promise.all(fonts);
   }
   // Imágenes de la tarjeta: se esperan cargadas y decodificadas (así no hay tirones al aparecer)
   $$("#main img").filter((img) => img.loading !== "lazy").forEach((img) => {

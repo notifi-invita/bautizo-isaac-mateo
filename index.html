@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bautizo de Isaac Mateo</title>
-<meta name="description" content="Te invito a mi Bautizo el sábado 17 de octubre en la Iglesia de San Blas, Cuenca. Confirma tu asistencia aquí.">
+<meta name="description" content="Te invito a mi bautizo el sábado 17 de octubre en la Iglesia de San Blas, Cuenca. Confirma tu asistencia aquí.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Bautizo de Isaac Mateo">
 <meta property="og:description" content="Sábado 17 de octubre · Iglesia de San Blas, Cuenca. Toca para abrir tu invitación.">
@@ -54,13 +54,16 @@
         <div class="seal-half l"><span class="seal-face"><span class="seal-initials" data-fill="initials">IM</span></span></div>
         <div class="seal-half r"><span class="seal-face"><span class="seal-initials" data-fill="initials">IM</span></span></div>
         <svg class="seal-crack" viewBox="0 0 100 100" aria-hidden="true"><path d="M52 0L47 18L55 36L46 55L54 74L48 100"/></svg>
-        <button class="seal-btn" id="openBtn" type="button" aria-label="Abrir la invitación"></button>
+        <button class="seal-btn" id="openBtn" type="button" aria-label="Abrir la invitación con música"></button>
         <div class="crumbs" id="crumbs" aria-hidden="true"></div>
       </div>
     </div>
   </div>
-  <p class="intro-hint"><span class="hint-dot" aria-hidden="true"></span>Toca el sello para abrir<span id="musicHint"> · con música</span></p>
-  <button class="quiet-btn" id="openQuiet" type="button">Abrir en silencio</button>
+  <div class="intro-cta">
+    <p class="intro-hint"><span class="hint-dot" aria-hidden="true"></span><span>Toca el sello para abrir</span></p>
+    <p class="intro-music" id="musicHint">con música</p>
+    <button class="quiet-btn" id="openQuiet" type="button">Abrir sin música</button>
+  </div>
   <div class="bloom" id="bloom" aria-hidden="true"></div>
 </div>
 
@@ -245,7 +248,7 @@
           <blockquote id="thanksQuote" hidden></blockquote>
         </div>
         <div class="thanks" id="closed" hidden>
-          <h3>Las confirmaciones cerraron</h3>
+          <h3>Las confirmaciones ya están cerradas</h3>
           <p>La fecha para confirmar ya pasó. Si deseas acompañarnos, escríbele directamente a <span data-fill="parentsOr">Cristina o a Andrés</span>.</p>
         </div>
       </div>
@@ -261,7 +264,7 @@
 </main>
 
 <div id="lightbox" hidden><img alt=""><button type="button" aria-label="Cerrar">✕</button></div>
-<audio id="bgm" loop preload="auto"></audio>
+<audio id="bgm" loop preload="none"></audio>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <!--PREVIEW-END-->
 

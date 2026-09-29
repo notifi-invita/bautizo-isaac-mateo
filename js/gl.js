@@ -177,13 +177,16 @@ void main(){
   // Solo se dibuja mientras algo cambia (revelado u onda del mouse)
   function tickPhoto() { if (P && (P.busy || P.h > 0.002) && !document.hidden) drawPhoto(); }
 
+  // Si WebGL falla, vuelve la foto/monograma normal: con fundido si la tarjeta ya se está
+  // mostrando; si no, queda oculto y motion.js lo revela con la animación de respaldo.
   function failPhoto() {
     if (P && P.tw) P.tw.kill();
     if (P && P.cv) P.cv.remove();
     photoEl.classList.remove("gl-on");
     P = null;
     delete UI.photoReveal;
-    gsap.set("#mainPhoto > *", { opacity: 1, scale: 1 });
+    if (UI.heroStarted) gsap.to("#mainPhoto > *", { opacity: 1, scale: 1, duration: 1 });
+    else gsap.set("#mainPhoto > *", { opacity: 0, scale: 1.1 });
   }
 
   UI.glReady = (async () => {

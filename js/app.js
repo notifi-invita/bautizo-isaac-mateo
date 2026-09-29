@@ -11,8 +11,11 @@
   const rand = (a, b) => Math.random() * (b - a) + a;
   const TZ = "America/Guayaquil";
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  // Modo ligero para celulares modestos: menos partículas y efectos
-  const LITE = reduce || (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 3;
+  // Modo ligero para celulares modestos: menos partículas y efectos.
+  // Ojo: los iPhone siempre reportan 4 núcleos (privacidad) y no reportan memoria,
+  // así que solo se considera modesto con menos de 4 núcleos o 3 GB de memoria o menos.
+  const cores = navigator.hardwareConcurrency || 8, mem = navigator.deviceMemory || 8;
+  const LITE = reduce || cores < 4 || mem <= 3;
   const UI = (window.UI = { reduce, LITE });
   if (LITE) document.documentElement.classList.add("lite");
   document.body.classList.add("is-locked", "is-loading");
@@ -41,7 +44,7 @@
     return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h >= 12 ? "P.M." : "A.M."}`;
   };
   const longDate = cap(fmt(ceremony, { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
-  UI.eventDay = fmt(ceremony, { weekday: "long", day: "numeric", month: "long" });
+  UI.eventDay = fmt(ceremony, { weekday: "long", day: "numeric", month: "long" }).replace(",", "");
   $("#weekday").textContent = fmt(ceremony, { weekday: "long" });
   $("#dayNum").textContent = fmt(ceremony, { day: "numeric" });
   $("#monthArc").textContent = fmt(ceremony, { month: "long" }).toUpperCase();
@@ -161,12 +164,23 @@
   UI.celebrate = () => UI.petalShower(70);
 
   /* ---------- Sonido: música de fondo + efectos sutiles ---------- */
-  // Un solo interruptor controla ambos. Se decide al abrir: con sonido o en silencio.
+  // Un solo interruptor controla ambos. Se decide al abrir: con música (tocando el sello) o «Abrir sin música».
   const bgm = $("#bgm"), musicBtn = $("#musicBtn");
   let musicOk = !!C.music, gain = null, fadeT = 0;
   UI.sound = false;
-  const noMusic = () => { musicOk = false; $("#musicHint").hidden = true; };
-  if (musicOk) { bgm.addEventListener("error", noMusic); bgm.src = C.music; } else noMusic();
+  // Sin archivo de música no tiene sentido ofrecer "con música / sin música"
+  const noMusic = () => {
+    musicOk = false;
+    $("#musicHint").hidden = true;
+    $("#openQuiet").hidden = true;
+    $("#openBtn").setAttribute("aria-label", "Abrir la invitación");
+  };
+  if (musicOk) {
+    bgm.addEventListener("error", noMusic);
+    bgm.src = C.music; // preload="none": la canción se descarga recién al abrir la invitación
+    // Consulta mínima para saber si el archivo existe (sin descargarlo)
+    if (window.fetch) fetch(C.music, { method: "HEAD" }).then((r) => { if (!r.ok) noMusic(); }).catch(() => {});
+  } else noMusic();
   // Fundido: con Web Audio si existe (así funciona también en iPhone); si no, con el volumen del <audio>
   function fadeTo(v, d, done) {
     clearTimeout(fadeT);

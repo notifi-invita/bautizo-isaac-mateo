@@ -19,7 +19,7 @@
   const eventDay = UI.eventDay;
   dlEl.textContent = "Por favor, confírmanos hasta el ";
   const strong = document.createElement("strong");
-  strong.textContent = deadline.toLocaleDateString("es-EC", { weekday: "long", day: "numeric", month: "long", timeZone: TZ });
+  strong.textContent = deadline.toLocaleDateString("es-EC", { weekday: "long", day: "numeric", month: "long", timeZone: TZ }).replace(",", "");
   dlEl.append(strong, ".");
 
   /* ---------- Conexión con Supabase (se descarga solo cuando hace falta) ---------- */
@@ -29,7 +29,10 @@
     if (!configured) return Promise.resolve(null);
     if (!sbPromise) {
       sbPromise = new Promise((resolve) => {
-        const done = () => { try { resolve(window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY)); } catch (e) { console.error(e); resolve(null); } };
+        // Sin sesión guardada: si en este celular se abrió el panel admin, el formulario no debe
+        // enviar como administrador (esa cuenta no tiene permiso de insertar y fallaría).
+        const opts = { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } };
+        const done = () => { try { resolve(window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY, opts)); } catch (e) { console.error(e); resolve(null); } };
         if (window.supabase) return done();
         const sc = document.createElement("script");
         sc.src = "vendor/supabase.js";
@@ -100,9 +103,9 @@
     form.hidden = true; closed.hidden = true; dlEl.hidden = true; thanks.hidden = false;
     const quote = $("#thanksQuote");
     if (d.attending) {
-      const extra = d.guests === 0 ? "" : d.guests === 1 ? " junto a 1 acompañante" : ` junto a ${d.guests} acompañantes`;
+      const extra = d.guests === 0 ? "" : d.guests === 1 ? " con 1 acompañante" : ` con ${d.guests} acompañantes`;
       $("#thanksTitle").textContent = `¡Qué alegría, ${d.first}!`;
-      $("#thanksText").textContent = `Tu asistencia quedó confirmada${extra}. Te esperamos el ${eventDay} para celebrar juntos este regalo de fe.`;
+      $("#thanksText").textContent = `Confirmaste tu asistencia${extra}. Te esperamos el ${eventDay} para celebrar juntos este regalo de fe.`;
     } else {
       $("#thanksTitle").textContent = `Gracias por tu cariño, ${d.first}`;
       $("#thanksText").textContent = "Te vamos a extrañar, pero sabemos que nos acompañas desde el corazón. Tus palabras ya llegaron a nuestra familia:";

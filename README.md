@@ -31,7 +31,7 @@ En uno o dos minutos la invitación queda en el enlace de arriba.
 2. **SQL Editor → New query** → pega todo `setup.sql` → **Run**.
 3. Para comprobar: pega `sql/verificar.sql` → **Run**. Debe salir `invitado_puede_leer` e `invitado_puede_borrar` en `false`, lo demás en `true` y `reglas = 3`.
 4. Botón **Connect** (arriba) o **Project Settings → API Keys**: copia **Project URL** y la **Publishable key** (`sb_publishable_…`; la antigua *anon* también sirve) en `js/config.js` (`SUPABASE_URL` y `SUPABASE_ANON_KEY`). Nunca uses la *secret key*.
-5. **Authentication → Users → Add user → Create new user**: tu correo y contraseña, marca **Auto Confirm User**.
+5. **Authentication → Users → Add user → Create new user**: tu correo y contraseña, marca **Auto Confirm User**. Luego anótalo como administrador con `sql/agregar-admin.sql` (cambia el correo y **Run**). Solo los usuarios anotados ven y borran respuestas.
 6. **Authentication → Sign In / Providers**: desactiva **Allow new users to sign up**.
 7. Opcional: `sql/consultas.sql` tiene consultas para ver respuestas y totales directo en Supabase.
 
@@ -40,7 +40,7 @@ La clave publishable/*anon* es pública por diseño; la seguridad la dan las reg
 ## 3 · Foto y música
 
 - **Foto del círculo dorado:** súbela a `img/` (por ejemplo `img/isaac.jpg`, idealmente cuadrada y menor a 400 KB) y escribe esa ruta en `mainPhoto`.
-- **Música:** sube el archivo como `musica.mp3` a la carpeta principal. Empieza con un fundido suave al tocar el sello; quien prefiera silencio toca «Abrir en silencio». Si el archivo no existe, el aviso «con música» se oculta solo (los efectos de sonido siguen disponibles).
+- **Música:** sube el archivo como `musica.mp3` a la carpeta principal. Empieza con un fundido suave al tocar el sello; quien prefiera silencio toca «Abrir sin música». Si el archivo no existe, el aviso «con música» se oculta solo (los efectos de sonido siguen disponibles).
 - **Galería (opcional):** `photos: ["img/foto1.jpg", "img/foto2.jpg"]`.
 
 Para editar desde el navegador: abre el archivo en GitHub → ícono del lápiz → cambia → **Commit changes**. Para subir fotos: **Add file → Upload files** dentro de `img/`.
@@ -63,9 +63,9 @@ https://notifi-invita.github.io/bautizo-isaac-mateo/?para=Familia%20Pérez
 
 Hechas con GSAP 3.15 (MorphSVG, Physics2D, DrawSVG, SplitText, ScrollTrigger), Lenis para el scroll suave en computadora y WebGL propio (sin librerías) para la foto y las luces.
 
-- **Carga:** el monograma «IM» se dibuja al ritmo de lo que realmente falta por cargar (fuentes, acuarelas, foto). Al terminar aparece el sobre con dos opciones: tocar el sello (con música) o «Abrir en silencio».
-- **Apertura:** el sello se agrieta y se parte en dos con gravedad real, la solapa se abre en 3D, la carta sale, la cámara se acerca y un destello de luz revela la tarjeta.
-- **Tarjeta:** las flores se pintan desde las esquinas, los marcos dorados se dibujan, la foto aparece con un revelado líquido de borde dorado (WebGL), la corona crece alrededor, las palomas llegan volando con aleteo real (las alas cambian de forma) y se posan, y «Bautizo» se escribe a mano letra por letra.
+- **Carga:** el monograma «IM» se dibuja al ritmo de lo que realmente falta por cargar (fuentes, acuarelas, foto). Al terminar aparece el sobre con dos opciones: tocar el sello (con música) o «Abrir sin música».
+- **Apertura:** el sello se agrieta y se parte en dos con gravedad real, la solapa se abre en 3D, la carta sale, el sobre baja y se desvanece, la carta viaja al centro y un destello cálido revela la tarjeta.
+- **Tarjeta:** las flores aparecen por capas desde las esquinas, los marcos dorados se dibujan, la foto aparece con un revelado líquido de borde dorado (WebGL), la corona gira suavemente hasta su lugar, las palomas llegan volando con aleteo real (las alas cambian de forma) y se posan, y «Bautizo» se escribe a mano letra por letra.
 - **Al bajar:** cada sección se revela en orden con la misma familia de curvas; el reloj de paletas cuenta en vivo.
 - **Al confirmar:** «Gracias» se escribe a mano, se sueltan palomas y cae una lluvia suave de pétalos.
 - **Oro vivo:** el dorado brilla según la inclinación del celular o el movimiento del mouse.

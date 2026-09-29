@@ -11,6 +11,7 @@
 --   admin_puede_leer        = true
 --   admin_puede_borrar      = true
 --   reglas                  = 3
+--   administradores         = 1 o más (si es 0, ejecuta sql/agregar-admin.sql)
 -- ============================================================
 select
   to_regclass('public.rsvps') is not null                                          as tabla_creada,
@@ -22,4 +23,5 @@ select
   has_table_privilege('anon', 'public.rsvps', 'DELETE')                            as invitado_puede_borrar,
   has_table_privilege('authenticated', 'public.rsvps', 'SELECT')                   as admin_puede_leer,
   has_table_privilege('authenticated', 'public.rsvps', 'DELETE')                   as admin_puede_borrar,
-  (select count(*) from pg_policies where schemaname = 'public' and tablename = 'rsvps') as reglas;
+  (select count(*) from pg_policies where schemaname = 'public' and tablename = 'rsvps') as reglas,
+  (select count(*) from public.admins) as administradores;

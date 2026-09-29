@@ -31,7 +31,21 @@ create table if not exists public.rsvps (
 alter table public.rsvps
   add column if not exists message text check (message is null or char_length(message) <= 500);
 
--- Seguridad: los invitados solo pueden enviar; solo el administrador con sesión puede leer y borrar
+-- Administradores: solo los usuarios anotados aquí pueden ver y borrar respuestas.
+-- (Aunque alguien lograra crear una cuenta, no vería nada.)
+-- Para anotarte usa sql/agregar-admin.sql después de crear tu usuario.
+create table if not exists public.admins (
+  user_id uuid primary key references auth.users (id) on delete cascade
+);
+alter table public.admins enable row level security;
+revoke all on public.admins from anon, authenticated;
+grant select on public.admins to authenticated;
+drop policy if exists "cada quien ve si es admin" on public.admins;
+create policy "cada quien ve si es admin"
+  on public.admins for select to authenticated
+  using (user_id = (select auth.uid()));
+
+-- Seguridad: los invitados solo pueden enviar; solo los administradores pueden leer y borrar
 alter table public.rsvps enable row level security;
 
 -- Permisos explícitos (los proyectos nuevos de Supabase ya no los dan solos)
@@ -48,9 +62,9 @@ create policy "invitados pueden enviar"
 drop policy if exists "admin puede leer" on public.rsvps;
 create policy "admin puede leer"
   on public.rsvps for select to authenticated
-  using (true);
+  using (exists (select 1 from public.admins a where a.user_id = (select auth.uid())));
 
 drop policy if exists "admin puede borrar" on public.rsvps;
 create policy "admin puede borrar"
   on public.rsvps for delete to authenticated
-  using (true);
+  using (exists (select 1 from public.admins a where a.user_id = (select auth.uid())));
