@@ -58,6 +58,13 @@ window.CONFIG = {
     closing: "Con amor y gratitud,"
   },
 
+  // Frases sugeridas para quien confirma que asistirá (opcionales; pueden editarlas antes de enviar)
+  acceptSuggestions: [
+    "¡Con mucho gusto los acompañaré! Gracias por invitarme a compartir este día tan especial con Isaac Mateo.",
+    "Será una alegría ser parte de este hermoso paso de fe. ¡Que Dios bendiga y guarde siempre a Isaac Mateo!",
+    "¡Muchas felicidades! Allí estaremos para celebrar con ustedes este día tan lleno de bendiciones."
+  ],
+
   // Frases sugeridas para quien no puede asistir (pueden editarlas antes de enviar)
   declineSuggestions: [
     "No podré asistir, pero les dejo mis mejores deseos y muchas felicitaciones en este día tan especial. ¡Un abrazo enorme para Isaac Mateo!",

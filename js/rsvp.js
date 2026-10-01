@@ -51,16 +51,31 @@
   form.addEventListener("focusin", () => getSupabase(), { once: true });
   const pageStart = Date.now();
 
-  /* ---------- Frases sugeridas al no asistir ---------- */
-  C.declineSuggestions.forEach((text) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.textContent = text;
-    b.addEventListener("click", () => { msg.value = text; markSuggestion(); msg.focus(); });
-    suggestBox.appendChild(b);
-  });
+  /* ---------- Frases sugeridas (al asistir y al no asistir) ---------- */
+  const ACCEPT = C.acceptSuggestions || [], DECLINE = C.declineSuggestions || [];
+  // optional: al asistir el mensaje es opcional, así que tocar de nuevo la frase elegida la quita
+  function buildSuggest(box, list, optional) {
+    if (!box) return;
+    list.forEach((text) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = text;
+      b.addEventListener("click", () => {
+        msg.value = optional && msg.value === text ? "" : text;
+        markSuggestion();
+        msg.focus({ preventScroll: true });
+      });
+      box.appendChild(b);
+    });
+  }
+  buildSuggest($("#suggestYes"), ACCEPT, true);
+  buildSuggest(suggestBox, DECLINE, false);
   function markSuggestion() {
-    $$("#suggest button").forEach((b) => b.classList.toggle("on", b.textContent === msg.value));
+    $$(".suggest button").forEach((b) => {
+      const on = b.textContent === msg.value;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on);
+    });
   }
   msg.addEventListener("input", markSuggestion);
 
@@ -171,11 +186,13 @@
     noBox.classList.toggle("closed", yes !== false);
     yesBox.inert = yes !== true;
     noBox.inert = yes !== false;
-    msgLabel.textContent = yes === false ? "Tu mensaje para la familia" : `Unas palabras para ${C.baby} (opcional)`;
+    msgLabel.textContent = yes === false ? "Tu mensaje para la familia" : "Tu mensaje para la familia (opcional)";
+    // Una frase sugerida del otro grupo no tiene sentido al cambiar de opción: se reemplaza.
+    // Lo que el invitado escribió por su cuenta se respeta.
     if (yes === false) {
       setGuests(0);
-      if (!msg.value.trim()) msg.value = C.declineSuggestions[0];
-    } else if (yes === true && C.declineSuggestions.includes(msg.value)) {
+      if (!msg.value.trim() || ACCEPT.includes(msg.value)) msg.value = DECLINE[0] || "";
+    } else if (yes === true && DECLINE.includes(msg.value)) {
       msg.value = "";
     }
     markSuggestion();
@@ -213,7 +230,7 @@
     if (d.attending) {
       const conf = d.guests === 0 ? "Tu asistencia quedó confirmada." : d.guests === 1 ? "Tu asistencia y la de tu acompañante quedaron confirmadas." : `Tu asistencia y la de tus ${d.guests} acompañantes quedaron confirmadas.`;
       $("#thanksTitle").textContent = `¡Qué alegría, ${d.first}!`;
-      $("#thanksText").textContent = `${conf} Te esperamos con mucho cariño el ${eventDay} para celebrar juntos este regalo de fe.`;
+      $("#thanksText").textContent = `${conf} Te esperamos con mucho cariño el ${eventDay} para celebrar juntos este regalo de fe.` + (d.message ? " Tus lindas palabras ya llegaron a nuestra familia:" : "");
     } else {
       $("#thanksTitle").textContent = `Te llevamos en el corazón, ${d.first}`;
       $("#thanksText").textContent = "Te extrañaremos mucho, pero sabemos que nos acompañarás con tus oraciones. Tus palabras ya llegaron a nuestra familia:";
