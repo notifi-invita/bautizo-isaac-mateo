@@ -286,7 +286,7 @@
     a.download = "bautizo-isaac-mateo.ics";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    UI.toast("Abre el archivo descargado para guardar el evento en tu calendario.");
+    UI.toast("Abre el archivo descargado y la fecha quedará guardada en tu calendario.");
   });
 
   /* ---------- Galería ---------- */

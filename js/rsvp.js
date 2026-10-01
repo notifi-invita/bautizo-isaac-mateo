@@ -17,7 +17,7 @@
   /* ---------- Fecha límite ---------- */
   const deadline = new Date(`${C.rsvpDeadline}T23:59:59${E.timezone}`);
   const eventDay = UI.eventDay;
-  dlEl.textContent = "Por favor, confírmanos hasta el ";
+  dlEl.textContent = "Te agradeceremos confirmar hasta el ";
   const strong = document.createElement("strong");
   strong.textContent = deadline.toLocaleDateString("es-EC", { weekday: "long", day: "numeric", month: "long", timeZone: TZ }).replace(",", "");
   dlEl.append(strong, ".");
@@ -99,8 +99,8 @@
     const n = guests + 1, missing = n - meals.slice(0, n).filter(Boolean).length;
     $("#mealsQ").textContent = n === 1 ? M.question : M.questionGroup || M.question;
     $("#mealsHint").textContent = n === 1 ? M.hint : M.hintGroup || M.hint;
-    mealsSum.textContent = M.options.map((o) => `${o.name}: ${mealCount(o.id, n)}`).join(" · ") +
-      (missing ? ` · ${missing === 1 ? "falta 1 persona" : `faltan ${missing} personas`}` : "");
+    const chosen = M.options.filter((o) => mealCount(o.id, n) > 0).map((o) => `${mealCount(o.id, n)} ${o.name.toLowerCase()}`);
+    mealsSum.textContent = missing === n ? "" : missing ? (missing === 1 ? "Falta elegir 1 plato" : `Faltan elegir ${missing} platos`) : `Listo: ${chosen.join(" y ")}`;
   }
   // Una fila por persona (se agregan o quitan sin perder lo ya elegido)
   function renderMeals() {
@@ -148,7 +148,7 @@
     errBox.textContent = "";
     setBtn(btnText());
     if (n === 2) {
-      $("#step2Title").textContent = `${first}, ahora elige el menú`;
+      $("#step2Title").textContent = `${first}, solo falta elegir el menú`;
       renderMeals();
       $("#step2Title").focus({ preventScroll: true });
       // Un segundo toque rápido sobre el mismo botón no debe "enviar" sin haber elegido
@@ -171,7 +171,7 @@
     noBox.classList.toggle("closed", yes !== false);
     yesBox.inert = yes !== true;
     noBox.inert = yes !== false;
-    msgLabel.textContent = yes === false ? "Tu mensaje para la familia" : `Un mensaje para ${C.baby} (opcional)`;
+    msgLabel.textContent = yes === false ? "Tu mensaje para la familia" : `Unas palabras para ${C.baby} (opcional)`;
     if (yes === false) {
       setGuests(0);
       if (!msg.value.trim()) msg.value = C.declineSuggestions[0];
@@ -211,17 +211,13 @@
     heroLabel("done");
     const quote = $("#thanksQuote");
     if (d.attending) {
-      const extra = d.guests === 0 ? "" : d.guests === 1 ? " con 1 acompañante" : ` con ${d.guests} acompañantes`;
+      const conf = d.guests === 0 ? "Tu asistencia quedó confirmada." : d.guests === 1 ? "Tu asistencia y la de tu acompañante quedaron confirmadas." : `Tu asistencia y la de tus ${d.guests} acompañantes quedaron confirmadas.`;
       $("#thanksTitle").textContent = `¡Qué alegría, ${d.first}!`;
-      $("#thanksText").textContent = `Confirmaste tu asistencia${extra}. Te esperamos el ${eventDay} para celebrar juntos este regalo de fe.`;
+      $("#thanksText").textContent = `${conf} Te esperamos con mucho cariño el ${eventDay} para celebrar juntos este regalo de fe.`;
     } else {
-      $("#thanksTitle").textContent = `Gracias por tu cariño, ${d.first}`;
-      $("#thanksText").textContent = "Te vamos a extrañar, pero sabemos que nos acompañas desde el corazón. Tus palabras ya llegaron a nuestra familia:";
+      $("#thanksTitle").textContent = `Te llevamos en el corazón, ${d.first}`;
+      $("#thanksText").textContent = "Te extrañaremos mucho, pero sabemos que nos acompañarás con tus oraciones. Tus palabras ya llegaron a nuestra familia:";
     }
-    const tm = $("#thanksMeals"), dishes = d.attending ? M.options.filter((o) => d[o.id] > 0).map((o) => `${o.name} (${d[o.id]})`) : [];
-    tm.hidden = !dishes.length;
-    const one = d.pollo + d.cuy === 1;
-    tm.textContent = !dishes.length ? "" : one ? `Plato elegido: ${M.options.find((o) => d[o.id] > 0).name}.` : `Platos elegidos: ${dishes.join(" y ")}.`;
     quote.hidden = !d.message;
     quote.textContent = d.message ? `“${d.message}”` : "";
     if (fresh) {
@@ -297,16 +293,16 @@
       return;
     }
     const message = clean(msg.value).slice(0, 500);
-    if (!nameOk(first)) return fail("#fName", "Escribe tu nombre (mínimo 2 letras).");
-    if (!nameOk(last)) return fail("#fLast", "Escribe tu apellido (mínimo 2 letras).");
-    if (!attending && !message) return fail("#fMsg", "Déjanos unas palabras o elige una de las frases.");
+    if (!nameOk(first)) return fail("#fName", "Por favor, escribe tu nombre.");
+    if (!nameOk(last)) return fail("#fLast", "Por favor, escribe tu apellido.");
+    if (!attending && !message) return fail("#fMsg", "Por favor, déjanos unas palabras o elige una de las frases.");
     if (attending && step === 1) return goStep(2, first);
     if (attending) {
       const n = guests + 1, i = meals.slice(0, n).findIndex((m) => !m);
       if (i !== -1) {
         const row = mealRows.children[i];
         row.classList.add("err");
-        errBox.textContent = n === 1 ? "Elige tu plato para la recepción." : i === 0 ? "Elige el plato de cada persona: falta el tuyo." : `Elige el plato de cada persona: falta el de «${who(i)}».`;
+        errBox.textContent = n === 1 ? "Por favor, elige tu plato." : i === 0 ? "Por favor, elige también tu plato." : `Por favor, elige también el plato de «${who(i)}».`;
         row.querySelector("input").focus();
         return;
       }
@@ -330,7 +326,7 @@
         });
         if (error) {
           if (error.code === "23505") {
-            errBox.textContent = `Ya recibimos una confirmación a nombre de ${first} ${last}. Si necesitas cambiarla, escríbele a ${C.parents.join(" o a ")}.`;
+            errBox.textContent = `Ya recibimos una confirmación a nombre de ${first} ${last}. Si necesitas hacer algún cambio, con gusto te ayudarán ${C.parents.join(" o ")}.`;
             return;
           }
           // Fuera de plazo: la base no acepta respuestas después de la fecha límite
@@ -346,7 +342,7 @@
       showThanks(data, true);
     } catch (err) {
       console.error(err);
-      errBox.textContent = "No pudimos enviar tu respuesta. Revisa tu conexión a internet e inténtalo otra vez.";
+      errBox.textContent = "No pudimos enviar tu respuesta. Por favor, revisa tu conexión a internet e inténtalo de nuevo.";
     } finally {
       btn.disabled = false;
       backBtn.hidden = step === 1 || !thanks.hidden;
