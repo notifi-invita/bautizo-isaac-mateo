@@ -66,11 +66,8 @@
 
   /* ---------- Plato de la recepción: uno por persona ---------- */
   const M = C.menu, mealRows = $("#mealRows"), mealsSum = $("#mealsSum");
-  $("#mealsQ").textContent = M.question;
-  $("#mealsHint").textContent = M.hint;
   const meals = []; // elección de cada persona: "pollo" | "cuy" | null
   const who = (i) => (i === 0 ? "Tú" : `Acompañante ${i}`);
-  const mealName = (id) => (M.options.find((o) => o.id === id) || {}).name || id;
   const mealCount = (id, n) => meals.slice(0, n).filter((m) => m === id).length;
   function mealRow(i) {
     const row = document.createElement("div");
@@ -85,7 +82,13 @@
       const label = document.createElement("label"), input = document.createElement("input"), span = document.createElement("span");
       label.className = "meal-opt";
       input.type = "radio"; input.name = `meal-${i}`; input.value = o.id; input.checked = meals[i] === o.id;
-      input.addEventListener("change", () => { meals[i] = o.id; row.classList.remove("err"); updateMeals(); });
+      input.addEventListener("change", () => {
+        meals[i] = o.id;
+        row.classList.remove("err");
+        updateMeals();
+        // Si ya no falta nadie, se borra el aviso de error
+        if (!meals.slice(0, guests + 1).some((m) => !m)) errBox.textContent = "";
+      });
       span.textContent = o.name;
       label.append(input, span);
       row.appendChild(label);
@@ -94,6 +97,8 @@
   }
   function updateMeals() {
     const n = guests + 1, missing = n - meals.slice(0, n).filter(Boolean).length;
+    $("#mealsQ").textContent = n === 1 ? M.question : M.questionGroup || M.question;
+    $("#mealsHint").textContent = n === 1 ? M.hint : M.hintGroup || M.hint;
     mealsSum.textContent = M.options.map((o) => `${o.name}: ${mealCount(o.id, n)}`).join(" · ") +
       (missing ? ` · ${missing === 1 ? "falta 1 persona" : `faltan ${missing} personas`}` : "");
   }
@@ -142,9 +147,15 @@
     errBox.textContent = "";
     setBtn(btnText());
     if (n === 2) {
-      $("#step2Title").textContent = `¡Qué alegría, ${first}!`;
+      $("#step2Title").textContent = `${first}, ahora elige el menú`;
       renderMeals();
       $("#step2Title").focus({ preventScroll: true });
+      // Un segundo toque rápido sobre el mismo botón no debe "enviar" sin haber elegido
+      sendBtn.disabled = true;
+      setTimeout(() => { sendBtn.disabled = false; }, 700);
+    } else {
+      const sel = form.querySelector('input[name="att"]:checked') || $("#fName");
+      sel.focus({ preventScroll: true });
     }
     if (window.gsap && !UI.reduce) gsap.fromTo(show, { opacity: 0, x: n === 2 ? 24 : -24 }, { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" });
     scrollCard();
@@ -160,7 +171,6 @@
     yesBox.inert = yes !== true;
     noBox.inert = yes !== false;
     msgLabel.textContent = yes === false ? "Tu mensaje para la familia" : `Un mensaje para ${C.baby} (opcional)`;
-    $("#choiceErr").hidden = true;
     if (yes === false) {
       setGuests(0);
       if (!msg.value.trim()) msg.value = C.declineSuggestions[0];
@@ -191,7 +201,8 @@
     }
     const tm = $("#thanksMeals"), dishes = d.attending ? M.options.filter((o) => d[o.id] > 0).map((o) => `${o.name} (${d[o.id]})`) : [];
     tm.hidden = !dishes.length;
-    tm.textContent = dishes.length ? `Plato${d.pollo + d.cuy === 1 ? "" : "s"} elegido${d.pollo + d.cuy === 1 ? "" : "s"}: ${dishes.join(" y ")}.` : "";
+    const one = d.pollo + d.cuy === 1;
+    tm.textContent = !dishes.length ? "" : one ? `Plato elegido: ${M.options.find((o) => d[o.id] > 0).name}.` : `Platos elegidos: ${dishes.join(" y ")}.`;
     quote.hidden = !d.message;
     quote.textContent = d.message ? `“${d.message}”` : "";
     if (fresh) {
@@ -261,7 +272,6 @@
     const choice = form.elements.att.value, attending = choice === "yes";
     if (!choice) {
       errBox.textContent = "Por favor, indica si podrás acompañarnos.";
-      $("#choiceErr").hidden = false;
       form.querySelector('input[name="att"]').focus();
       return;
     }
@@ -275,7 +285,7 @@
       if (i !== -1) {
         const row = mealRows.children[i];
         row.classList.add("err");
-        errBox.textContent = n === 1 ? "Elige tu plato para la recepción." : `Elige el plato de cada persona: falta «${who(i)}».`;
+        errBox.textContent = n === 1 ? "Elige tu plato para la recepción." : i === 0 ? "Elige el plato de cada persona: falta el tuyo." : `Elige el plato de cada persona: falta el de «${who(i)}».`;
         row.querySelector("input").focus();
         return;
       }

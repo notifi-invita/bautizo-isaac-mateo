@@ -30,7 +30,6 @@
   ART.defs = () => `
 ${lg("lgEucaA", "#86a092", "#cbd8cf")}${lg("lgEucaB", "#738e80", "#b5c8bb")}${lg("lgEucaC", "#a3b6a9", "#e2e9e3")}
 ${lg("lgOliveA", "#50695a", "#8ea596")}${lg("lgOliveB", "#657f6f", "#a8bbad")}
-${lg("lgWing", "#fffefb", "#ece3d2", 'x1="0" y1="0" x2="1" y2="1"')}${lg("lgWingFar", "#f4efe5", "#e2d8c5", 'x1="0" y1="0" x2="1" y2="1"')}${lg("lgDove", "#ffffff", "#ebe3d4", 'x1="0" y1="0" x2="0" y2="1"')}
 <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3e0b5"/><stop offset=".35" stop-color="#c79c5e"/><stop offset=".6" stop-color="#e9cf98"/><stop offset="1" stop-color="#9a7240"/></linearGradient>
 <linearGradient id="gGoldSoft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf0d4"/><stop offset="1" stop-color="#dcbc84"/></linearGradient>
 <linearGradient id="gGoldLine" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="220"><stop offset="0" stop-color="#e9cf98"/><stop offset=".4" stop-color="#b88a4e"/><stop offset=".7" stop-color="#f0dcaf"/><stop offset="1" stop-color="#a87c45"/></linearGradient>

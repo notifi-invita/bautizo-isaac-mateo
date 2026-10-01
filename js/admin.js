@@ -111,6 +111,10 @@
     $("#sNo").textContent = rows.length - yes.length;
     $("#sPollo").textContent = yes.reduce((a, r) => a + (r.pollo || 0), 0);
     $("#sCuy").textContent = yes.reduce((a, r) => a + (r.cuy || 0), 0);
+    // Personas que asisten pero sin plato (respuestas guardadas antes de existir el menú)
+    const missing = yes.reduce((a, r) => a + Math.max(0, 1 + r.guests - (r.pollo || 0) - (r.cuy || 0)), 0);
+    $("#sMissing").textContent = missing;
+    $("#stMissing").hidden = missing === 0;
   }
 
   // auto = recarga cada minuto: si nada cambió, no se vuelve a dibujar la tabla

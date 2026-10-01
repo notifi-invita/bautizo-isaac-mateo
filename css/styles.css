@@ -399,7 +399,7 @@ html.has-cursor input,html.has-cursor textarea{cursor:text}
 /* Mejores cortes de línea donde el navegador lo permite */
 .invite-text,.lead,.verse,.foot-small,.thanks p{text-wrap:pretty}
 
-/* ================= PLATO DEL ALMUERZO (uno por persona) ================= */
+/* ================= PLATO DE LA RECEPCIÓN (uno por persona) ================= */
 .meals{min-width:0;margin:0 0 18px;padding:16px 0 0;border:0;border-top:1px solid var(--line);text-align:center}
 .meals-q{float:left;width:100%;padding:0;margin-bottom:4px;font-family:var(--serif);font-size:1.12rem;line-height:1.35;color:var(--ink)}
 .meals-hint{clear:both;margin-bottom:12px;font-size:.88rem;color:var(--ink-soft)}
@@ -427,7 +427,6 @@ html.has-cursor input,html.has-cursor textarea{cursor:text}
 
 /* Pregunta de asistencia (nada viene marcado: el plato aparece solo al aceptar) */
 .choice-q{margin-bottom:10px;font-family:var(--serif);font-size:1.12rem;text-align:center;color:var(--ink)}
-.choice-err{margin:-12px 0 16px;font-size:.85rem;text-align:center;color:#a4503a}
 
 /* Paso 2: menú */
 .step-kicker{margin-bottom:6px;text-align:center;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-4)}

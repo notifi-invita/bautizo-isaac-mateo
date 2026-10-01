@@ -31,7 +31,7 @@ create table if not exists public.rsvps (
 alter table public.rsvps
   add column if not exists message text check (message is null or char_length(message) <= 500);
 
--- Plato del almuerzo: cuántas personas de esta respuesta comen pollo y cuántas cuy.
+-- Plato de la recepción: cuántas personas de esta respuesta comen pollo y cuántas cuy.
 -- Cada persona elige uno solo, así que entre los dos suman exactamente las personas que asisten
 -- (el invitado + sus acompañantes). Quien no asiste no elige plato.
 alter table public.rsvps add column if not exists pollo int not null default 0 check (pollo between 0 and 11);
