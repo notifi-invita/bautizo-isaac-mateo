@@ -19,7 +19,7 @@ window.CONFIG = {
   event: {
     date: "2026-10-17",            // sábado 17 de octubre de 2026
     ceremonyTime: "10:00",         // formato 24 h
-    receptionTime: "13:00",
+    receptionTime: "16:00",
     ceremonyPlace: "Iglesia de San Blas",
     ceremonyCity: "Cuenca, Ecuador",
     ceremonyMap: "https://www.google.com/maps/search/?api=1&query=Iglesia+de+San+Blas+Cuenca+Ecuador",
@@ -33,10 +33,10 @@ window.CONFIG = {
   rsvpDeadline: "2026-10-04",      // domingo 4 de octubre (incluido)
   maxGuests: 10,                   // máximo de acompañantes por persona
 
-  // ---- Almuerzo: cada persona que asiste elige UN plato ----
+  // ---- Recepción: cada persona que asiste elige UN plato ----
   // Puedes cambiar los nombres; los id "pollo" y "cuy" no se cambian (son las columnas de la base).
   menu: {
-    question: "¿Qué plato deseas que te sirvamos en el almuerzo?",
+    question: "¿Qué plato deseas que te sirvamos en la recepción?",
     hint: "Por favor, elige un solo plato para cada persona.",
     options: [
       { id: "pollo", name: "Pollo al horno" },

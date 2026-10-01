@@ -64,7 +64,7 @@
   }
   msg.addEventListener("input", markSuggestion);
 
-  /* ---------- Plato del almuerzo: uno por persona ---------- */
+  /* ---------- Plato de la recepción: uno por persona ---------- */
   const M = C.menu, mealRows = $("#mealRows"), mealsSum = $("#mealsSum");
   $("#mealsQ").textContent = M.question;
   $("#mealsHint").textContent = M.hint;
@@ -153,7 +153,7 @@
 
   /* ---------- Asistiré / No podré ---------- */
   // yes: true (asistirá) · false (no podrá) · null (aún no elige: ninguna sección abierta).
-  // Acompañantes y plato del almuerzo solo aparecen después de «Con gusto asistiré».
+  // Acompañantes y plato de la recepción solo aparecen después de «Con gusto asistiré».
   function setMode(yes) {
     yesBox.classList.toggle("closed", yes !== true);
     noBox.classList.toggle("closed", yes !== false);
@@ -275,7 +275,7 @@
       if (i !== -1) {
         const row = mealRows.children[i];
         row.classList.add("err");
-        errBox.textContent = n === 1 ? "Elige tu plato para el almuerzo." : `Elige el plato de cada persona: falta «${who(i)}».`;
+        errBox.textContent = n === 1 ? "Elige tu plato para la recepción." : `Elige el plato de cada persona: falta «${who(i)}».`;
         row.querySelector("input").focus();
         return;
       }

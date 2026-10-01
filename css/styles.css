@@ -96,7 +96,7 @@ button{font:inherit;color:inherit}
 .env-flap{position:absolute;left:0;right:0;top:0;height:60%;z-index:3;transform-origin:50% 0;transform-style:preserve-3d}
 .flap-face{position:absolute;inset:0;clip-path:polygon(0 0,100% 0,50% 100%);-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .flap-face.outside{background:linear-gradient(180deg,#d5dfd7,#bac8be)}
-.flap-face.inside{transform:rotateX(180deg);background:radial-gradient(circle,rgba(195,154,92,.35) 1px,transparent 1.6px) 0 0/12px 12px,linear-gradient(0deg,#f4f1e8,#e5ebe4)}
+.flap-face.inside{transform:rotateY(180deg);background:radial-gradient(circle,rgba(195,154,92,.35) 1px,transparent 1.6px) 0 0/12px 12px,linear-gradient(0deg,#f4f1e8,#e5ebe4)}
 
 .seal{position:absolute;left:50%;top:55%;z-index:5;width:clamp(72px,21vw,88px);aspect-ratio:1;translate:-50% -50%;filter:drop-shadow(0 10px 10px rgba(110,72,30,.42))}
 .seal-glow{position:absolute;inset:-70%;border-radius:50%;background:radial-gradient(circle,rgba(255,238,196,.95) 0%,rgba(243,215,150,.45) 32%,rgba(243,215,150,0) 68%);opacity:0;pointer-events:none}
