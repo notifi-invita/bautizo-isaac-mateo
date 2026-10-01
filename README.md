@@ -56,7 +56,7 @@ https://notifi-invita.github.io/bautizo-isaac-mateo/?para=Familia%20Pérez
 ## Cómo funciona la confirmación
 
 - Una sola respuesta por **nombre + apellido** (sin importar mayúsculas, tildes ni espacios). Para corregir una, elimínala en el panel y la persona puede volver a enviar.
-- Fecha límite: **domingo 4 de octubre** (`rsvpDeadline` en `js/config.js`).
+- Fecha límite: **domingo 4 de octubre** a las 23:59 (hora de Ecuador). La invitación muestra «Las confirmaciones ya están cerradas» y, además, la base de datos rechaza cualquier respuesta posterior con su propio reloj (aunque el celular tenga otra fecha). Para cambiarla: `rsvpDeadline` en `js/config.js` **y** la fecha de la regla «invitados pueden enviar» en `setup.sql`.
 - Quien no puede asistir elige o escribe una frase de buenos deseos; la ves en la columna **Mensaje** del panel.
 - **Plato de la recepción:** quien marca «Con gusto asistiré» toca «Continuar al menú» y en un segundo paso elige un solo plato por persona (él y cada acompañante): *Pollo al horno* o *Cuy asado*. El panel muestra el total de cada plato y el Excel trae una columna por plato. Los nombres se cambian en `menu` dentro de `js/config.js`.
 

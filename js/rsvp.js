@@ -144,6 +144,7 @@
     hide.hidden = true;
     show.hidden = false;
     backBtn.hidden = n === 1;
+    heading(n === 1);
     errBox.textContent = "";
     setBtn(btnText());
     if (n === 2) {
@@ -185,11 +186,29 @@
   renderMeals();
 
   /* ---------- Estados finales ---------- */
+  // El título «Confirma tu asistencia» y la fecha límite solo se muestran mientras hay que
+  // llenar el paso 1. En el menú, en el agradecimiento y con las confirmaciones cerradas se ocultan
+  // (si no, «confirmar» aparecía una y otra vez). El botón de la tarjeta principal también cambia.
+  const secTitle = $("#rsvpCard .sec-title"), heroCta = $("#heroCta");
+  function heading(show) {
+    secTitle.hidden = !show;
+    dlEl.hidden = !show;
+  }
+  function heroLabel(state) {
+    if (!heroCta) return;
+    heroCta.hidden = state === "closed";
+    const t = state === "done" ? "Ver mi confirmación" : "Confirmar asistencia";
+    UI.setLabel ? UI.setLabel(heroCta, t) : (heroCta.textContent = t);
+  }
   function showClosed() {
-    form.hidden = true; thanks.hidden = true; dlEl.hidden = true; closed.hidden = false;
+    form.hidden = true; thanks.hidden = true; closed.hidden = false;
+    heading(false);
+    heroLabel("closed");
   }
   function showThanks(d, fresh) {
-    form.hidden = true; closed.hidden = true; dlEl.hidden = true; thanks.hidden = false;
+    form.hidden = true; closed.hidden = true; thanks.hidden = false;
+    heading(false);
+    heroLabel("done");
     const quote = $("#thanksQuote");
     if (d.attending) {
       const extra = d.guests === 0 ? "" : d.guests === 1 ? " con 1 acompañante" : ` con ${d.guests} acompañantes`;
@@ -222,7 +241,9 @@
   }
 
   function showForm() {
-    thanks.hidden = true; closed.hidden = true; dlEl.hidden = false; form.hidden = false;
+    thanks.hidden = true; closed.hidden = true; form.hidden = false;
+    heading(step === 1);
+    heroLabel("form");
     if (Date.now() > deadline) showClosed();
   }
   const forget = () => { try { localStorage.removeItem(KEY); } catch (_) {} };
@@ -312,6 +333,9 @@
             errBox.textContent = `Ya recibimos una confirmación a nombre de ${first} ${last}. Si necesitas cambiarla, escríbele a ${C.parents.join(" o a ")}.`;
             return;
           }
+          // Fuera de plazo: la base no acepta respuestas después de la fecha límite
+          // (aunque el reloj del celular esté atrasado)
+          if (error.code === "42501") return showClosed();
           throw error;
         }
       } else {

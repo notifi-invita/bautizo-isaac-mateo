@@ -63,10 +63,13 @@ revoke all on public.rsvps from anon, authenticated;
 grant insert (id, first_name, last_name, attending, guests, message, pollo, cuy) on public.rsvps to anon;
 grant select, delete on public.rsvps to authenticated;
 
+-- Los invitados pueden enviar solo hasta la fecha límite (hora de Ecuador), según el reloj
+-- del servidor: aunque el celular del invitado tenga otra fecha, después del plazo no se guarda.
+-- Si cambias rsvpDeadline en js/config.js, cambia también esta fecha y vuelve a ejecutar el script.
 drop policy if exists "invitados pueden enviar" on public.rsvps;
 create policy "invitados pueden enviar"
   on public.rsvps for insert to anon
-  with check (true);
+  with check (now() <= timestamptz '2026-10-04 23:59:59-05');
 
 drop policy if exists "admin puede leer" on public.rsvps;
 create policy "admin puede leer"

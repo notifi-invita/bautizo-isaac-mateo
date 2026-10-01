@@ -30,7 +30,8 @@ window.CONFIG = {
   },
 
   // ---- Confirmación ----
-  rsvpDeadline: "2026-10-04",      // domingo 4 de octubre (incluido)
+  rsvpDeadline: "2026-10-04",      // domingo 4 de octubre (incluido). La base de datos también la
+                                   // aplica (setup.sql, regla «invitados pueden enviar»): cambia ambas.
   maxGuests: 10,                   // máximo de acompañantes por persona
 
   // ---- Recepción: cada persona que asiste elige UN plato ----
